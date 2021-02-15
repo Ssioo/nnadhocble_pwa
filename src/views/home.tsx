@@ -34,14 +34,14 @@ const HomeScreen = () => {
 
   return (
     <div>
-      {bleAvailable ?
+      {!bleAvailable ?
         <div>
           <DeviceList/>
-          <div onClick={async () => {
+          <button onClick={async () => {
             await scanBles()
           }}>
             Scan
-          </div>
+          </button>
         </div> :
         <div>현재 디바이스는 Bluetooth를 지원하지 않습니다</div>
       }
@@ -54,9 +54,12 @@ const DeviceList = observable(() => {
     <div>
       {deviceStore.devices.length === 0 ?
         <div>검색된 디바이스가 없습니다</div> :
-        deviceStore.devices.map((d) =>
-          <DeviceItem device={d} key={d.id.toString()}/>
-        )}
+        <div>
+          {deviceStore.devices.map((d) =>
+            <DeviceItem device={d} key={d.id.toString()}/>
+          )}
+        </div>
+      }
     </div>
   )
 })
