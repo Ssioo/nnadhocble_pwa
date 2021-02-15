@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { observable } from 'mobx'
 import React from 'react'
 import { deviceStore } from '../stores/device'
+import { observer } from 'mobx-react-lite'
 
 const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
@@ -34,7 +34,7 @@ const HomeScreen = () => {
 
   return (
     <div>
-      {!bleAvailable ?
+      {bleAvailable ?
         <div>
           <DeviceList/>
           <button onClick={async () => {
@@ -49,7 +49,7 @@ const HomeScreen = () => {
   )
 }
 
-const DeviceList = observable(() => {
+const DeviceList = observer(() => {
   return (
     <div>
       {deviceStore.devices.length === 0 ?
