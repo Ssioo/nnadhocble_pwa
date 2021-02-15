@@ -10,8 +10,6 @@
       "DOM.Iterable",
       "webworker"
     ],
-    "declaration": true,
-    "outDir": "dist",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "Node",
