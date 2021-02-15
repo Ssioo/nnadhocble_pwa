@@ -5,43 +5,52 @@ import { deviceStore } from '../stores/device'
 
 const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
+  const [scan, setScan] = useState<BluetoothLEScan | null>(null)
   useEffect(() => {
-    const scan = scanBles()
+    navigator.bluetooth.getAvailability().then((a) => {
+      console.log('BLE is in: ', a)
+      setBleAvailable(a)
+    })
     return () => {
-      scan.then((res) => {
-        res?.stop()
-      })
+      scan?.stop()
     }
   }, [])
 
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
-    const available = await navigator.bluetooth.getAvailability()
-    console.log(available)
-    setBleAvailable(available)
-    if (!available) return null
+    if (!bleAvailable) return null
+    console.log('scanning...1')
     const scan = await navigator.bluetooth.requestLEScan({ acceptAllAdvertisements: true })
+    console.log('scanning...2')
     navigator.bluetooth.addEventListener('advertisementreceived', (event) => {
+      console.log(event.device.name, ' = ', event.rssi, ' power: ', event.txPower)
       const newDevices = new Set([...deviceStore.devices, event.device])
       deviceStore.devices = [...newDevices]
-      console.log(event.device.name, ' = ', event.rssi, ' power: ', event.txPower)
       deviceStore.deviceDataMap.set(event.device, { rssi: event.rssi, txPower: event.txPower })
     })
+    console.log('scanning...3')
+    setScan(scan)
     return scan
   }
 
   return (<div>
-    {bleAvailable ? <DeviceList/> : '현재 디바이스는 Bluetooth를 지원하지 않습니다'}
+    {bleAvailable ?
+      <div>
+        <DeviceList/>
+        <div onClick={async () => {
+          await scanBles()
+        }}>Scan
+        </div>
+      </div> :
+      '현재 디바이스는 Bluetooth를 지원하지 않습니다'
+    }
   </div>)
 }
 
 const DeviceList = observable(() => {
   return (<div>
-    {deviceStore.devices.map((d) =>
+    {deviceStore.devices.length === 0 ? '검색된 디바이스가 없습니다' : deviceStore.devices.map((d) =>
       <DeviceItem device={d} key={d.id.toString()}/>
     )}
-    <div>
-      Debug: {deviceStore.deviceDataMap}
-    </div>
   </div>)
 })
 
