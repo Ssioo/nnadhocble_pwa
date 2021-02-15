@@ -20,6 +20,6 @@ export class AuthRoute extends Route<AuthRouteProps> {
         strict={this.props.strict}
       >
         {this.props.children}
-      </Route> : <Redirect to='/pwa' />)
+      </Route> : <Redirect to='/' />)
   }
 }

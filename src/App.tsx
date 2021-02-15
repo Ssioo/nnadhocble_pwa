@@ -1,10 +1,9 @@
 import React, { lazy, Suspense } from 'react'
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
-import { AuthRoute } from './views/components/auth-router'
 
 const Home = lazy(() => import('./views/home'))
 
-function App() {
+const App = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={<div>Loading...</div>}>

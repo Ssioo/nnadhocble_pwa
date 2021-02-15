@@ -32,32 +32,41 @@ const HomeScreen = () => {
     return scan
   }
 
-  return (<div>
-    {bleAvailable ?
-      <div>
-        <DeviceList/>
-        <div onClick={async () => {
-          await scanBles()
-        }}>Scan
-        </div>
-      </div> :
-      '현재 디바이스는 Bluetooth를 지원하지 않습니다'
-    }
-  </div>)
+  return (
+    <div>
+      {bleAvailable ?
+        <div>
+          <DeviceList/>
+          <div onClick={async () => {
+            await scanBles()
+          }}>
+            Scan
+          </div>
+        </div> :
+        <div>현재 디바이스는 Bluetooth를 지원하지 않습니다</div>
+      }
+    </div>
+  )
 }
 
 const DeviceList = observable(() => {
-  return (<div>
-    {deviceStore.devices.length === 0 ? '검색된 디바이스가 없습니다' : deviceStore.devices.map((d) =>
-      <DeviceItem device={d} key={d.id.toString()}/>
-    )}
-  </div>)
+  return (
+    <div>
+      {deviceStore.devices.length === 0 ?
+        <div>검색된 디바이스가 없습니다</div> :
+        deviceStore.devices.map((d) =>
+          <DeviceItem device={d} key={d.id.toString()}/>
+        )}
+    </div>
+  )
 })
 
 const DeviceItem: React.FC<{ device: BluetoothDevice }> = ({ device }) => {
-  return (<div>
-    {device.name} {device.id}
-  </div>)
+  return (
+    <div>
+      {device.name} {device.id}
+    </div>
+  )
 }
 
 export default HomeScreen

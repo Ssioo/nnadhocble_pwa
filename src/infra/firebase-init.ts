@@ -8,7 +8,6 @@ export const initFirebase = () => {
   firebase.analytics()
 
   const messaging = firebase.messaging()
-
   messaging.getToken({ vapidKey: FCM_KEY }).then((t) => localStorage.setItem('fcm_token', t))
   messaging.onMessage((payload) => {
     console.log('onMessage', payload)
@@ -20,7 +19,7 @@ export const initFirebase = () => {
     })
     notification.onclick = (event) => {
       notification.close()
-      window.open('https://cumulus-peer.netlify.app/')
+      window.open('https://nnadhoc-ble.netlify.app/')
     }
   })
 
