@@ -23,6 +23,7 @@ const HomeScreen = () => {
     navigator.bluetooth.addEventListener('advertisementreceived', (event) => {
       const newDevices = new Set([...deviceStore.devices, event.device])
       deviceStore.devices = [...newDevices]
+      console.log(event.device.name, ' = ', event.rssi, ' power: ', event.txPower)
       deviceStore.deviceDataMap.set(event.device, { rssi: event.rssi, txPower: event.txPower })
     })
     return scan
