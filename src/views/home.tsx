@@ -23,6 +23,7 @@ const HomeScreen = () => {
     navigator.bluetooth.addEventListener('advertisementreceived', (event) => {
       const newDevices = new Set([...deviceStore.devices, event.device])
       deviceStore.devices = [...newDevices]
+      deviceStore.deviceDataMap.set(event.device, { rssi: event.rssi, txPower: event.txPower })
     })
     return scan
   }
@@ -38,7 +39,7 @@ const DeviceList = observable(() => {
       <DeviceItem device={d} key={d.id.toString()}/>
     )}
     <div>
-      Debug: {JSON.stringify(deviceStore.deviceDataMap)}
+      Debug: {deviceStore.deviceDataMap}
     </div>
   </div>)
 })

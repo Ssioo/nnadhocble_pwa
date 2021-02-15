@@ -7,14 +7,6 @@ class DeviceStore {
 
   constructor() {
     makeAutoObservable(this)
-    reaction(() => this.devices, (ds) => {
-      ds.forEach((d) => {
-        d.watchAdvertisements()
-        d.addEventListener('advertisementreceived', (event) => {
-          this.deviceDataMap.set(d, { rssi: event['rssi'], txPower: event['txPower']})
-        })
-      })
-    })
   }
 }
 
