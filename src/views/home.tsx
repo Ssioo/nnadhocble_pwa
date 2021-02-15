@@ -19,10 +19,10 @@ const HomeScreen = () => {
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
     if (!bleAvailable) return null
     console.log('scanning...1')
+    if (!('requestLEScan' in navigator.bluetooth)) return null
     const scan = await navigator.bluetooth.requestLEScan({ acceptAllAdvertisements: true })
     console.log('scanning...2')
     navigator.bluetooth.addEventListener('advertisementreceived', (event) => {
-      console.log(event.device.name, ' = ', event.rssi, ' power: ', event.txPower)
       const newDevices = new Set([...deviceStore.devices, event.device])
       deviceStore.devices = [...newDevices]
       deviceStore.deviceDataMap.set(event.device, { rssi: event.rssi, txPower: event.txPower })
@@ -38,12 +38,13 @@ const HomeScreen = () => {
         <div>
           <DeviceList/>
           <button onClick={async () => {
-            await scanBles()
+            if (!scan?.active) await scanBles()
+            else scan?.stop
           }}>
-            Scan
+            {scan?.active ? 'Stop' : 'Scan'}
           </button>
-        </div> :
-        <div>현재 디바이스는 Bluetooth를 지원하지 않습니다</div>
+        </div>
+        : <div>현재 디바이스는 Bluetooth를 지원하지 않습니다</div>
       }
     </div>
   )
@@ -55,8 +56,10 @@ const DeviceList = observer(() => {
       {deviceStore.devices.length === 0 ?
         <div>검색된 디바이스가 없습니다</div> :
         <div>
-          {deviceStore.devices.map((d) =>
-            <DeviceItem device={d} key={d.id.toString()}/>
+          {deviceStore.devices.map((d) => {
+            const de = deviceStore.deviceDataMap.get(d)
+              return <DeviceItem device={d} rssi={de?.rssi} power={de?.txPower} key={d.id.toString()}/>
+            }
           )}
         </div>
       }
@@ -64,10 +67,10 @@ const DeviceList = observer(() => {
   )
 })
 
-const DeviceItem: React.FC<{ device: BluetoothDevice }> = ({ device }) => {
+const DeviceItem: React.FC<{ device: BluetoothDevice, rssi: number, power: number }> = ({ device, rssi, power }) => {
   return (
     <div>
-      {device.name} {device.id}
+      {device.name ?? '이름없음'} ::: rx: {rssi}, power: {power}
     </div>
   )
 }
