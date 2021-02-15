@@ -2,14 +2,14 @@ importScripts('https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js')
 importScripts('https://www.gstatic.com/firebasejs/8.2.3/firebase-messaging.js')
 
 const FIREBASE_CONFIG = {
-  apiKey: 'AIzaSyCXthCGTDqn-f5Nd0MY5L-Nnxg8g-f6XtQ',
-  authDomain: 'mobedchulcheck.firebaseapp.com',
-  databaseURL: 'https://mobedchulcheck-default-rtdb.firebaseio.com',
-  projectId: 'mobedchulcheck',
-  storageBucket: 'mobedchulcheck.appspot.com',
-  messagingSenderId: '1078947672432',
-  appId: '1:1078947672432:web:b0edff6e66a8c2234adfb5',
-  measurementId: 'G-3H44NW5EKZ'
+  apiKey: 'AIzaSyBRTE_u7pNFTRPWD4CKOlH_OFhpnaKsEcQ',
+  authDomain: 'nnadhocble.firebaseapp.com',
+  databaseURL: 'https://nnadhocble-default-rtdb.firebaseio.com',
+  projectId: 'nnadhocble',
+  storageBucket: 'nnadhocble.appspot.com',
+  messagingSenderId: '597038536501',
+  appId: '1:597038536501:web:d326b5b69b917d581c5e7c',
+  measurementId: 'G-BLDSVPDMH5'
 }
 
 

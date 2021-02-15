@@ -3,14 +3,14 @@ export const isDev = process.env.NODE_ENV !== 'production'
 export const BASE_URL = isDev ? 'http://localhost:5000' : 'https://cumulus.hoons.io:5000'
 
 export const FIREBASE_CONFIG = {
-  apiKey: 'AIzaSyCXthCGTDqn-f5Nd0MY5L-Nnxg8g-f6XtQ',
-  authDomain: 'mobedchulcheck.firebaseapp.com',
-  databaseURL: 'https://mobedchulcheck-default-rtdb.firebaseio.com',
-  projectId: 'mobedchulcheck',
-  storageBucket: 'mobedchulcheck.appspot.com',
-  messagingSenderId: '1078947672432',
-  appId: '1:1078947672432:web:b0edff6e66a8c2234adfb5',
-  measurementId: 'G-3H44NW5EKZ'
+  apiKey: 'AIzaSyBRTE_u7pNFTRPWD4CKOlH_OFhpnaKsEcQ',
+  authDomain: 'nnadhocble.firebaseapp.com',
+  databaseURL: 'https://nnadhocble-default-rtdb.firebaseio.com',
+  projectId: 'nnadhocble',
+  storageBucket: 'nnadhocble.appspot.com',
+  messagingSenderId: '597038536501',
+  appId: '1:597038536501:web:d326b5b69b917d581c5e7c',
+  measurementId: 'G-BLDSVPDMH5'
 }
 
-export const FCM_KEY = 'BFuII-gSgT5PGZwFUktwc49VCUmQURyMGexOTzkOcdS3_rNPDgZ9PJIvvs-1FMCBfIx65CevzmZ2O1mduWlugYM'
+export const FCM_KEY = 'AAAAiwJFFzU:APA91bH1SCwmTHB75xjpQU1qW3VivVg_4xNKoL_srcWrEN1k3FNCtgejXCM53Y5Y-PaF6ZCjCUfR46b8QFX_i0s6iBvwNCiVAZE8hWzz2YMXZovgYCHUlAQKGmQh0RAhpiU4WcpC8nL4'
