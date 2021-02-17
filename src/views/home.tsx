@@ -1,16 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import React from 'react'
 import { deviceStore } from '../stores/device'
 import { observer } from 'mobx-react-lite'
+import Webcam from 'react-webcam'
 
 const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
+  const camera = useRef(null)
+
   useEffect(() => {
-    navigator.bluetooth.getAvailability().then((a) => {
-      console.log('BLE is in: ', a)
-      setBleAvailable(a)
-    })
+    if (navigator.bluetooth && 'getAvailability' in navigator.bluetooth) {
+      navigator.bluetooth.getAvailability().then((a) => {
+        console.log('BLE is in: ', a)
+        setBleAvailable(a)
+      })
+    }
     return () => {
       scan?.stop()
     }
@@ -19,7 +24,7 @@ const HomeScreen = () => {
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
     if (!bleAvailable) return null
     console.log('scanning...1')
-    if (!('requestLEScan' in navigator.bluetooth)) return null
+    if (!('requestLEScan' in navigator.bluetooth)) return null // TODO: Samsung Internet & Windows에서 Chrome 지원 필요.
     const scan = await navigator.bluetooth.requestLEScan({ acceptAllAdvertisements: true })
     console.log('scanning...2')
     navigator.bluetooth.addEventListener('advertisementreceived', (event) => {
@@ -34,18 +39,23 @@ const HomeScreen = () => {
 
   return (
     <div>
-      {bleAvailable ?
-        <div>
-          <DeviceList/>
-          <button onClick={async () => {
-            if (!scan?.active) await scanBles()
-            else scan?.stop
-          }}>
-            {scan?.active ? 'Stop' : 'Scan'}
-          </button>
-        </div>
-        : <div>현재 디바이스는 Bluetooth를 지원하지 않습니다</div>
-      }
+      {/*<DeviceList/>*/}
+      <div style={{width: 400, height: 600}}>
+        <Webcam
+          ref={camera}
+          screenshotFormat='image/jpeg'
+          height={600}
+          width={400}
+          audio
+          videoConstraints={{ width: 1080, height: 1920, facingMode: { exact: 'environment' } }}
+        />
+      </div>
+      <button onClick={async () => {
+        if (!scan?.active) await scanBles()
+        else scan?.stop
+      }}>
+        {scan?.active ? 'Stop' : 'Scan'}
+      </button>
     </div>
   )
 }

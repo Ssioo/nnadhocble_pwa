@@ -5,7 +5,7 @@ import * as serviceWorkerRegistration from './infra/service-worker-registration'
 import { initFirebase } from './infra/firebase-init'
 
 // Initialize Firebase
-initFirebase()
+//initFirebase()
 
 ReactDOM.render(<App/>, document.getElementById('root'))
 
