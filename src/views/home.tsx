@@ -11,6 +11,7 @@ const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
   const camera = useRef<Webcam | null>(null)
+  const [predicted, setPredicted] = useState<CocoSsd.DetectedObject[]>([])
 
   const model = useRef<CocoSsd.ObjectDetection | null>(null)
 
@@ -31,9 +32,10 @@ const HomeScreen = () => {
       if (!model) return
       const canvas = camera.current?.getCanvas({ width: 600, height: 400 })
       if (!canvas) return
-      const prediction = model.current?.detect(canvas)
-      console.log(prediction)
-    }, 33)
+      model.current?.detect(canvas).then((prediction) => {
+        setPredicted(prediction)
+      })
+    }, 100)
     return () => {
       clearInterval(interval)
     }
@@ -62,6 +64,9 @@ const HomeScreen = () => {
 
   return (
     <div>
+      <div>
+        {predicted.join(', ')}
+      </div>
       <div style={{ width: 400, height: 600 }}>
         <Webcam
           ref={camera}
