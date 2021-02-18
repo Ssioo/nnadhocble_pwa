@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import React from 'react'
 import { deviceStore } from '../stores/device'
 import { observer } from 'mobx-react-lite'
-import Webcam from 'react-webcam'
 import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
@@ -10,9 +9,10 @@ import * as CocoSsd from '@tensorflow-models/coco-ssd'
 const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
-  const camera = useRef<Webcam | null>(null)
   const [predicted, setPredicted] = useState<CocoSsd.DetectedObject[]>([])
 
+  const camera = useRef<HTMLVideoElement | null>(null)
+  const canvas = useRef<HTMLCanvasElement | null>(null)
   const model = useRef<CocoSsd.ObjectDetection | null>(null)
 
   useEffect(() => {
@@ -20,6 +20,24 @@ const HomeScreen = () => {
       navigator.bluetooth.getAvailability().then((a) => {
         console.log('BLE is in: ', a)
         setBleAvailable(a)
+      })
+    }
+    if (navigator.mediaDevices && 'getUserMedia' in navigator.mediaDevices) {
+      navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          width: 1920,
+          height: 1080,
+          facingMode: { exact: 'environment' },
+          resizeMode: 'cover',
+        }
+      }).then((stream) => {
+        const video = camera.current
+        if (!video) return
+        video.srcObject = stream
+        video.onloadedmetadata = () => {
+          video?.play()
+        }
       })
     }
     return () => {
@@ -30,14 +48,10 @@ const HomeScreen = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (!model) return
-      const canvas = camera.current?.getCanvas({ width: 600, height: 400 })
-      if (!canvas) return
-      const ctx = canvas.getContext('2d')
-      model.current?.detect(canvas).then((prediction) => {
+      const video = camera.current
+      if (!video) return
+      model.current?.detect(video).then((prediction) => {
         setPredicted(prediction)
-        prediction.forEach((obj) => {
-          ctx?.strokeRect(obj.bbox[0], obj.bbox[1], obj.bbox[2], obj.bbox[3])
-        })
       })
     }, 100)
     return () => {
@@ -46,9 +60,17 @@ const HomeScreen = () => {
   }, [])
 
   useEffect(() => {
+    const canv = canvas.current?.getContext('2d')
+    if (!canv) return
+    predicted.forEach((p) => {
+      canv.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3])
+    })
+  }, [predicted])
+
+  useEffect(() => {
     CocoSsd.load({ base: 'lite_mobilenet_v2' })
       .then((m) => model.current = m)
-  })
+  }, [])
 
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
     if (!bleAvailable) return null
@@ -71,24 +93,12 @@ const HomeScreen = () => {
       <div>
         {predicted.map((p) => p.class).join(', ')}
       </div>
-      <div style={{ width: 400, height: 600 }}>
-        <Webcam
+      <div style={{ width: '100%', height: '80%' }}>
+        <video
+          style={{ width: '100%', height: '100%' }}
           ref={camera}
-          screenshotFormat='image/jpeg'
-          height={600}
-          width={400}
-          audio
-          style={{
-            width: '100%',
-            height: '100%',
-          }}
-          videoConstraints={{
-            width: 1920,
-            height: 1080,
-            facingMode: { exact: 'environment' },
-            resizeMode: 'cover',
-          }}
         />
+        <canvas ref={canvas} width='100%' height='100%' />
       </div>
       <button
         onClick={async () => {
