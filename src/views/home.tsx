@@ -3,6 +3,8 @@ import React from 'react'
 import { deviceStore } from '../stores/device'
 import { observer } from 'mobx-react-lite'
 import Webcam from 'react-webcam'
+import '@tensorflow/tfjs-backend-cpu'
+import '@tensorflow/tfjs-backend-webgl'
 import CocoSsd, { ObjectDetection } from '@tensorflow-models/coco-ssd'
 
 const HomeScreen = () => {
