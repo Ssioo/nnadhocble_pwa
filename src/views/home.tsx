@@ -3,11 +3,14 @@ import React from 'react'
 import { deviceStore } from '../stores/device'
 import { observer } from 'mobx-react-lite'
 import Webcam from 'react-webcam'
+import CocoSsd, { ObjectDetection } from '@tensorflow-models/coco-ssd'
 
 const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
   const camera = useRef<Webcam | null>(null)
+
+  const model = useRef<ObjectDetection | null>(null)
 
   useEffect(() => {
     if (navigator.bluetooth && 'getAvailability' in navigator.bluetooth) {
@@ -23,12 +26,21 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log(camera?.current?.getScreenshot())
+      if (!model) return
+      const canvas = camera.current?.getCanvas({ width: 600, height: 400 })
+      if (!canvas) return
+      const prediction = model.current?.detect(canvas)
+      console.log(prediction)
     }, 33)
     return () => {
       clearInterval(interval)
     }
   }, [])
+
+  useEffect(() => {
+    CocoSsd.load()
+      .then((m) => model.current = m)
+  })
 
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
     if (!bleAvailable) return null
@@ -59,6 +71,7 @@ const HomeScreen = () => {
             width: 1080,
             height: 1920,
             facingMode: { exact: 'environment' },
+            resizeMode: 'cover',
           }}
         />
       </div>
