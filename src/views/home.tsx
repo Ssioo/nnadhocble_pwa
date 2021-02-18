@@ -7,7 +7,7 @@ import Webcam from 'react-webcam'
 const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
-  const camera = useRef(null)
+  const camera = useRef<Webcam | null>(null)
 
   useEffect(() => {
     if (navigator.bluetooth && 'getAvailability' in navigator.bluetooth) {
@@ -18,6 +18,15 @@ const HomeScreen = () => {
     }
     return () => {
       scan?.stop()
+    }
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log(camera?.current?.getScreenshot())
+    }, 33)
+    return () => {
+      clearInterval(interval)
     }
   }, [])
 
@@ -39,21 +48,26 @@ const HomeScreen = () => {
 
   return (
     <div>
-      {/*<DeviceList/>*/}
-      <div style={{width: 400, height: 600}}>
+      <div style={{ width: 400, height: 600 }}>
         <Webcam
           ref={camera}
           screenshotFormat='image/jpeg'
           height={600}
           width={400}
           audio
-          videoConstraints={{ width: 1080, height: 1920, facingMode: { exact: 'environment' } }}
+          videoConstraints={{
+            width: 1080,
+            height: 1920,
+            facingMode: { exact: 'environment' },
+          }}
         />
       </div>
-      <button onClick={async () => {
-        if (!scan?.active) await scanBles()
-        else scan?.stop
-      }}>
+      <button
+        onClick={async () => {
+          if (!scan?.active) await scanBles()
+          else scan?.stop
+        }}
+      >
         {scan?.active ? 'Stop' : 'Scan'}
       </button>
     </div>
@@ -67,7 +81,7 @@ const DeviceList = observer(() => {
         <div>검색된 디바이스가 없습니다</div> :
         <div>
           {deviceStore.devices.map((d) => {
-            const de = deviceStore.deviceDataMap.get(d)
+              const de = deviceStore.deviceDataMap.get(d)
               return <DeviceItem device={d} rssi={de?.rssi} power={de?.txPower} key={d.id.toString()}/>
             }
           )}
