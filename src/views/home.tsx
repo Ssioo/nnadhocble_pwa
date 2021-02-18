@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import React from 'react'
 import { deviceStore } from '../stores/device'
-import { observer } from 'mobx-react-lite'
 import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
@@ -35,33 +34,38 @@ const HomeScreen = () => {
       }).then((stream) => {
         const video = camera.current
         if (!video) return
-        setVideoSize({
-          width: 1080,
-          height: 1920,
-        })
         video.srcObject = stream
+        video.onplay = () => {
+          console.log({
+            width: video.videoWidth,
+            height: video.videoHeight,
+          })
+          setVideoSize({
+            width: video.videoWidth,
+            height: video.videoHeight,
+          })
+        }
         video.onloadeddata = () => {
           video?.play()
         }
       })
     }
-    return () => {
-      scan?.stop()
-      model.current?.dispose()
-    }
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       if (!model) return
       const video = camera.current
       if (!video) return
-      model.current?.detect(video).then((prediction) => {
-        setPredicted(prediction)
-      })
+      try {
+        const predictions = await model.current?.detect(video)
+        setPredicted(predictions ?? [])
+      } catch (e) {
+        console.log(e)
+      }
     }, 100)
+
     return () => {
       clearInterval(interval)
+      scan?.stop()
+      model.current?.dispose()
     }
   }, [])
 
@@ -71,12 +75,19 @@ const HomeScreen = () => {
     if (!canv || !ctx) return
     ctx.clearRect(0, 0, canv.width, canv.height)
     if (predicted.length === 0) return
+    ctx.font = '10px Arial'
     predicted.forEach((p) => {
       ctx.beginPath()
       ctx.rect(...p.bbox)
       ctx.lineWidth = 1
       ctx.strokeStyle = '#FF0000'
+      ctx.fillStyle = 'green'
       ctx.stroke()
+      ctx.fillText(
+        `${p.score.toFixed(3)} ${p.class}`,
+        p.bbox[0],
+        p.bbox[1] > 10 ? p.bbox[1] - 5 : 10
+      )
     })
   }, [predicted, videoSize])
 
@@ -110,7 +121,7 @@ const HomeScreen = () => {
           autoPlay
         />
       </div>
-      <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0 }}>
+      <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
         <canvas ref={canvas} style={{ width: '100%', height: '100%' }}/>
       </div>
     </div>
