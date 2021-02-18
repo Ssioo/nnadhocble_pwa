@@ -78,9 +78,13 @@ const HomeScreen = () => {
           height={600}
           width={400}
           audio
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
           videoConstraints={{
-            width: 1080,
-            height: 1920,
+            width: 1920,
+            height: 1080,
             facingMode: { exact: 'environment' },
             resizeMode: 'cover',
           }}
