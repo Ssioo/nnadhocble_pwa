@@ -32,8 +32,12 @@ const HomeScreen = () => {
       if (!model) return
       const canvas = camera.current?.getCanvas({ width: 600, height: 400 })
       if (!canvas) return
+      const ctx = canvas.getContext('2d')
       model.current?.detect(canvas).then((prediction) => {
         setPredicted(prediction)
+        prediction.forEach((obj) => {
+          ctx?.strokeRect(obj.bbox[0], obj.bbox[1], obj.bbox[2], obj.bbox[3])
+        })
       })
     }, 100)
     return () => {
@@ -49,7 +53,7 @@ const HomeScreen = () => {
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
     if (!bleAvailable) return null
     console.log('scanning...1')
-    if (!('requestLEScan' in navigator.bluetooth)) return null // TODO: Samsung Internet & Windows에서 Chrome 지원 필요.
+    if (!navigator.bluetooth || !('requestLEScan' in navigator.bluetooth)) return null // TODO: Samsung Internet & Windows에서 Chrome 지원 필요.
     const scan = await navigator.bluetooth.requestLEScan({ acceptAllAdvertisements: true })
     console.log('scanning...2')
     navigator.bluetooth.addEventListener('advertisementreceived', (event) => {
