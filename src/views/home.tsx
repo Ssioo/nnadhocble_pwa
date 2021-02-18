@@ -5,14 +5,14 @@ import { observer } from 'mobx-react-lite'
 import Webcam from 'react-webcam'
 import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
-import CocoSsd, { ObjectDetection } from '@tensorflow-models/coco-ssd'
+import * as CocoSsd from '@tensorflow-models/coco-ssd'
 
 const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
   const camera = useRef<Webcam | null>(null)
 
-  const model = useRef<ObjectDetection | null>(null)
+  const model = useRef<CocoSsd.ObjectDetection | null>(null)
 
   useEffect(() => {
     if (navigator.bluetooth && 'getAvailability' in navigator.bluetooth) {
@@ -40,7 +40,7 @@ const HomeScreen = () => {
   }, [])
 
   useEffect(() => {
-    CocoSsd.load()
+    CocoSsd.load({ base: 'lite_mobilenet_v2' })
       .then((m) => model.current = m)
   })
 
