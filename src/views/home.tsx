@@ -103,7 +103,9 @@ const HomeScreen = () => {
           ref={camera}
           autoPlay
         />
-        <canvas ref={canvas} style={{ width: '100%', height: '100%', position: 'absolute' }} />
+      </div>
+      <div style={{ width: '100%', height: '80%', position: 'absolute'}}>
+        <canvas ref={canvas} style={{ width: '100%', height: '100%' }} />
       </div>
       {/*<button
         onClick={async () => {
