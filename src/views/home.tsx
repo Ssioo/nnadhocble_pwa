@@ -64,7 +64,9 @@ const HomeScreen = () => {
     const ctx = canv?.getContext('2d')
     if (!canv || !ctx) return
     ctx.clearRect(0, 0, canv.width, canv.height)
+    if (predicted.length !== 4) return
     predicted.forEach((p) => {
+      ctx.strokeStyle = '#FF0000'
       ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3])
     })
   }, [predicted])
