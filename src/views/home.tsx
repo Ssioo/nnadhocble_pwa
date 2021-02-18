@@ -65,7 +65,7 @@ const HomeScreen = () => {
   return (
     <div>
       <div>
-        {predicted.join(', ')}
+        {predicted.map((p) => p.class).join(', ')}
       </div>
       <div style={{ width: 400, height: 600 }}>
         <Webcam
