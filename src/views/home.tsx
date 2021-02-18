@@ -10,6 +10,7 @@ const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
   const [predicted, setPredicted] = useState<CocoSsd.DetectedObject[]>([])
+  const [videoSize, setVideoSize] = useState<{ width: number, height: number }>()
 
   const camera = useRef<HTMLVideoElement | null>(null)
   const canvas = useRef<HTMLCanvasElement | null>(null)
@@ -34,6 +35,7 @@ const HomeScreen = () => {
       }).then((stream) => {
         const video = camera.current
         if (!video) return
+        setVideoSize({ width: video.videoWidth, height: video.videoHeight })
         video.srcObject = stream
         video.onloadeddata = () => {
           video?.play()
@@ -65,12 +67,21 @@ const HomeScreen = () => {
     if (!canv || !ctx) return
     ctx.clearRect(0, 0, canv.width, canv.height)
     if (predicted.length === 0) return
+    const ratio = {
+      width: window.innerWidth / (videoSize?.width ?? window.innerWidth),
+      height: window.innerHeight / (videoSize?.height ?? window.innerHeight),
+    }
     predicted.forEach((p) => {
+      console.log(ratio, '::', p.bbox.join(', '))
       ctx.strokeStyle = '#FF0000'
-      console.log('box: ', p.bbox.join(','))
-      ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2] - p.bbox[0], p.bbox[3] - p.bbox[1])
+      ctx.strokeRect(
+        p.bbox[0] * ratio.width,
+        p.bbox[1] * ratio.height,
+        p.bbox[2] * ratio.width,
+        p.bbox[3] * ratio.height,
+      )
     })
-  }, [predicted])
+  }, [predicted, videoSize])
 
   useEffect(() => {
     CocoSsd.load({ base: 'lite_mobilenet_v2' })
@@ -95,18 +106,18 @@ const HomeScreen = () => {
 
   return (
     <div>
-      <div>
+      {/*<div>
         {predicted.map((p) => p.class).join(', ')}
-      </div>
-      <div style={{ width: '100%', height: '80%' }}>
+      </div>*/}
+      <div style={{ width: '100%', height: '100%' }}>
         <video
           style={{ width: '100%', height: '100%' }}
           ref={camera}
           autoPlay
         />
       </div>
-      <div style={{ width: '100%', height: '80%', position: 'absolute'}}>
-        <canvas ref={canvas} style={{ width: '100%', height: '100%' }} />
+      <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0 }}>
+        <canvas ref={canvas} style={{ width: '100%', height: '100%' }}/>
       </div>
       {/*<button
         onClick={async () => {
