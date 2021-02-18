@@ -67,7 +67,8 @@ const HomeScreen = () => {
     if (predicted.length !== 4) return
     predicted.forEach((p) => {
       ctx.strokeStyle = '#FF0000'
-      ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3])
+      console.log('box: ', p.bbox.join(','))
+      ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2] - p.bbox[0], p.bbox[3] - p.bbox[1])
     })
   }, [predicted])
 
