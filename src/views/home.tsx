@@ -35,7 +35,7 @@ const HomeScreen = () => {
         const video = camera.current
         if (!video) return
         video.srcObject = stream
-        video.onloadedmetadata = () => {
+        video.onloadeddata = () => {
           video?.play()
         }
       })
