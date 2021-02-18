@@ -35,7 +35,10 @@ const HomeScreen = () => {
       }).then((stream) => {
         const video = camera.current
         if (!video) return
-        setVideoSize({ width: video.videoWidth, height: video.videoHeight })
+        setVideoSize({
+          width: 1920,
+          height: 1080,
+        })
         video.srcObject = stream
         video.onloadeddata = () => {
           video?.play()
@@ -106,9 +109,6 @@ const HomeScreen = () => {
 
   return (
     <div>
-      {/*<div>
-        {predicted.map((p) => p.class).join(', ')}
-      </div>*/}
       <div style={{ width: '100%', height: '100%' }}>
         <video
           style={{ width: '100%', height: '100%' }}
@@ -119,41 +119,7 @@ const HomeScreen = () => {
       <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0 }}>
         <canvas ref={canvas} style={{ width: '100%', height: '100%' }}/>
       </div>
-      {/*<button
-        onClick={async () => {
-          if (!scan?.active) await scanBles()
-          else scan?.stop
-        }}
-      >
-        {scan?.active ? 'Stop' : 'Scan'}
-      </button>*/}
     </div>
   )
 }
-
-const DeviceList = observer(() => {
-  return (
-    <div>
-      {deviceStore.devices.length === 0 ?
-        <div>검색된 디바이스가 없습니다</div> :
-        <div>
-          {deviceStore.devices.map((d) => {
-              const de = deviceStore.deviceDataMap.get(d)
-              return <DeviceItem device={d} rssi={de?.rssi} power={de?.txPower} key={d.id.toString()}/>
-            }
-          )}
-        </div>
-      }
-    </div>
-  )
-})
-
-const DeviceItem: React.FC<{ device: BluetoothDevice, rssi: number, power: number }> = ({ device, rssi, power }) => {
-  return (
-    <div>
-      {device.name ?? '이름없음'} ::: rx: {rssi}, power: {power}
-    </div>
-  )
-}
-
 export default HomeScreen
