@@ -60,10 +60,12 @@ const HomeScreen = () => {
   }, [])
 
   useEffect(() => {
-    const canv = canvas.current?.getContext('2d')
-    if (!canv) return
+    const canv = canvas.current
+    const ctx = canv?.getContext('2d')
+    if (!canv || !ctx) return
+    ctx.clearRect(0, 0, canv.width, canv.height)
     predicted.forEach((p) => {
-      canv.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3])
+      ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3])
     })
   }, [predicted])
 
@@ -97,17 +99,18 @@ const HomeScreen = () => {
         <video
           style={{ width: '100%', height: '100%' }}
           ref={camera}
+          autoPlay
         />
-        <canvas ref={canvas} width='100%' height='100%' />
+        <canvas ref={canvas} style={{ width: '100%', height: '100%', position: 'absolute' }} />
       </div>
-      <button
+      {/*<button
         onClick={async () => {
           if (!scan?.active) await scanBles()
           else scan?.stop
         }}
       >
         {scan?.active ? 'Stop' : 'Scan'}
-      </button>
+      </button>*/}
     </div>
   )
 }
