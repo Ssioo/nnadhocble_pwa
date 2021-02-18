@@ -47,6 +47,7 @@ const HomeScreen = () => {
     }
     return () => {
       scan?.stop()
+      model.current?.dispose()
     }
   }, [])
 
@@ -70,19 +71,12 @@ const HomeScreen = () => {
     if (!canv || !ctx) return
     ctx.clearRect(0, 0, canv.width, canv.height)
     if (predicted.length === 0) return
-    const ratio = {
-      width: window.innerWidth / (videoSize?.width ?? window.innerWidth),
-      height: window.innerHeight / (videoSize?.height ?? window.innerHeight),
-    }
     predicted.forEach((p) => {
-      console.log(ratio, '::', p.bbox.join(', '))
+      ctx.beginPath()
+      ctx.rect(...p.bbox)
+      ctx.lineWidth = 1
       ctx.strokeStyle = '#FF0000'
-      ctx.strokeRect(
-        p.bbox[0] * ratio.width,
-        p.bbox[1] * ratio.height,
-        p.bbox[2] * ratio.width,
-        p.bbox[3] * ratio.height,
-      )
+      ctx.stroke()
     })
   }, [predicted, videoSize])
 
