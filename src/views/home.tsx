@@ -78,7 +78,12 @@ const HomeScreen = () => {
     ctx.font = '10px Arial'
     predicted.forEach((p) => {
       ctx.beginPath()
-      ctx.rect(...p.bbox)
+      const ratio = {
+        width: window.innerWidth / (videoSize?.width ?? window.innerWidth),
+        height: window.innerHeight / (videoSize?.height ?? window.innerHeight),
+      }
+      const rect: [number, number, number, number] = [p.bbox[0] * ratio.width, p.bbox[1] * ratio.height, p.bbox[2] * ratio.width, p.bbox[3] * ratio.height]
+      ctx.rect(...rect)
       ctx.lineWidth = 1
       ctx.strokeStyle = '#FF0000'
       ctx.fillStyle = 'green'
