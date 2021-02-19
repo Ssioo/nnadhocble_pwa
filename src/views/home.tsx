@@ -26,8 +26,8 @@ const HomeScreen = () => {
       navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
-          width: 1920,
-          height: 1080,
+          width: 1280,
+          height: 720,
           facingMode: { exact: 'environment' },
           resizeMode: 'cover',
         }
@@ -79,8 +79,8 @@ const HomeScreen = () => {
     predicted.forEach((p) => {
       ctx.beginPath()
       const ratio = {
-        width: window.innerWidth / (videoSize?.width ?? window.innerWidth),
-        height: window.innerHeight / (videoSize?.height ?? window.innerHeight),
+        width: window.innerWidth / (videoSize?.height ?? window.innerWidth),
+        height: window.innerHeight / (videoSize?.width ?? window.innerHeight),
       }
       const rect: [number, number, number, number] = [p.bbox[0] * ratio.width, p.bbox[1] * ratio.height, p.bbox[2] * ratio.width, p.bbox[3] * ratio.height]
       ctx.rect(...rect)
