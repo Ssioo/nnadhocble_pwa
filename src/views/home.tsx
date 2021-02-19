@@ -83,6 +83,7 @@ const HomeScreen = () => {
         height: window.innerHeight / (videoSize?.width ?? window.innerHeight),
       }
       const rect: [number, number, number, number] = [p.bbox[0] * ratio.width, p.bbox[1] * ratio.height, p.bbox[2] * ratio.width, p.bbox[3] * ratio.height]
+      console.log(p.bbox, rect)
       ctx.rect(...rect)
       ctx.lineWidth = 1
       ctx.strokeStyle = '#FF0000'
@@ -90,8 +91,8 @@ const HomeScreen = () => {
       ctx.stroke()
       ctx.fillText(
         `${p.score.toFixed(3)} ${p.class}`,
-        p.bbox[0],
-        p.bbox[1] > 10 ? p.bbox[1] - 5 : 10
+        rect[0],
+        rect[1] > 10 ? rect[1] - 5 : 10
       )
     })
   }, [predicted, videoSize])
@@ -122,6 +123,8 @@ const HomeScreen = () => {
       <div style={{ width: window.innerWidth, height: window.innerHeight }}>
         <video
           style={{ width: window.innerWidth, height: window.innerHeight }}
+          width={window.innerWidth}
+          height={window.innerHeight}
           ref={camera}
           autoPlay
         />
@@ -129,7 +132,9 @@ const HomeScreen = () => {
       <div style={{ width: window.innerWidth, height: window.innerHeight, position: 'absolute', top: 0, left: 0 }}>
         <canvas
           ref={canvas}
-          style={{ width: window.innerWidth, height: window.innerHeight }}
+          style={{ width: window.innerWidth, height: window.innerHeight, display: 'block' }}
+          width={window.innerWidth}
+          height={window.innerHeight}
         />
       </div>
     </div>
