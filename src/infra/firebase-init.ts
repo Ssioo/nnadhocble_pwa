@@ -1,3 +1,12 @@
+/*
+ * Copyright: Copyright (c) 2021. wooisso <yeonwoo.cho@yonsei.ac.kr>
+ * License: MIT
+ * nnadhocble_pwa from Mobed Laboratory, Yonsei University
+ * Last Updated At 21. 2. 15. 오전 11:40
+ *
+ * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
+ */
+
 import firebase from 'firebase/app'
 import 'firebase/analytics'
 import 'firebase/messaging'
