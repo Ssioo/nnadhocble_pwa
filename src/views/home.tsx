@@ -119,15 +119,18 @@ const HomeScreen = () => {
 
   return (
     <div>
-      <div style={{ width: '100%', height: '100%' }}>
+      <div style={{ width: window.innerWidth, height: window.innerHeight }}>
         <video
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: window.innerWidth, height: window.innerHeight }}
           ref={camera}
           autoPlay
         />
       </div>
-      <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
-        <canvas ref={canvas} style={{ width: '100%', height: '100%' }}/>
+      <div style={{ width: window.innerWidth, height: window.innerHeight, position: 'absolute', top: 0, left: 0 }}>
+        <canvas
+          ref={canvas}
+          style={{ width: window.innerWidth, height: window.innerHeight }}
+        />
       </div>
     </div>
   )
