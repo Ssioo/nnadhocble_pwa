@@ -40,7 +40,15 @@ const HomeScreen = () => {
       const mediaPromise = navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
-          facingMode: { exact: 'environment' },
+          width: {
+            exact: window.innerWidth
+          },
+          height: {
+            exact: window.innerHeight
+          },
+          facingMode: {
+            exact: 'environment'
+          },
         }
       }).then((stream) => {
         const video = camera.current
@@ -65,6 +73,7 @@ const HomeScreen = () => {
       // Wait for both 1 & 2
       Promise.all([modelPromise, mediaPromise])
         .then((values) => {
+          model.current = values[0]
           detectFromVideoFrame(values[0], camera.current!!, setPredicted)
         })
     }
@@ -83,13 +92,6 @@ const HomeScreen = () => {
     if (predicted.length === 0) return
     ctx.font = '24px helvetica'
     predicted.forEach((p) => {
-      //ctx.beginPath()
-      /*const ratio = {
-        width: window.innerWidth / (videoSize?.width ?? window.innerWidth),
-        height: window.innerHeight / (videoSize?.height ?? window.innerHeight),
-      }*/
-      //const rect: [number, number, number, number] = [p.bbox[0] * ratio.width, p.bbox[1] * ratio.height, p.bbox[2] * ratio.width, p.bbox[3] * ratio.height]
-      //console.log(p.bbox, rect)
       ctx.lineWidth = 1
       ctx.strokeStyle = '#FF0000'
       ctx.strokeRect(...p.bbox)
