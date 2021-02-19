@@ -5,6 +5,19 @@ import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
 
+const detectFromVideoFrame = (
+  model,
+  video: HTMLVideoElement,
+  setPredicted: (predictions: CocoSsd.DetectedObject[]) => void
+) => {
+  model.detect(video).then((predictions) => {
+    setPredicted(predictions)
+    requestAnimationFrame(() => {
+      detectFromVideoFrame(model, video, setPredicted)
+    })
+  })
+}
+
 const HomeScreen = () => {
   const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
@@ -23,47 +36,40 @@ const HomeScreen = () => {
       })
     }
     if (navigator.mediaDevices && 'getUserMedia' in navigator.mediaDevices) {
-      navigator.mediaDevices.getUserMedia({
+      // 1. Load MediaDevice
+      const mediaPromise = navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
-          width: 1280,
-          height: 720,
           facingMode: { exact: 'environment' },
-          resizeMode: 'cover',
         }
       }).then((stream) => {
         const video = camera.current
         if (!video) return
         video.srcObject = stream
         video.onplay = () => {
-          console.log({
-            width: video.videoWidth,
-            height: video.videoHeight,
-          })
           setVideoSize({
             width: video.videoWidth,
             height: video.videoHeight,
           })
         }
-        video.onloadeddata = () => {
-          video?.play()
-        }
+        return new Promise((resolve) => {
+          video.onloadedmetadata = () => {
+            resolve(true)
+          }
+        })
       })
+
+      // 2. Load CocoSSd Model
+      const modelPromise = CocoSsd.load({ base: 'lite_mobilenet_v2' })
+
+      // Wait for both 1 & 2
+      Promise.all([modelPromise, mediaPromise])
+        .then((values) => {
+          detectFromVideoFrame(values[0], camera.current!!, setPredicted)
+        })
     }
-    const interval = setInterval(async () => {
-      if (!model) return
-      const video = camera.current
-      if (!video) return
-      try {
-        const predictions = await model.current?.detect(video)
-        setPredicted(predictions ?? [])
-      } catch (e) {
-        console.log(e)
-      }
-    }, 100)
 
     return () => {
-      clearInterval(interval)
       scan?.stop()
       model.current?.dispose()
     }
@@ -75,32 +81,26 @@ const HomeScreen = () => {
     if (!canv || !ctx) return
     ctx.clearRect(0, 0, canv.width, canv.height)
     if (predicted.length === 0) return
-    ctx.font = '10px Arial'
+    ctx.font = '24px helvetica'
     predicted.forEach((p) => {
-      ctx.beginPath()
-      const ratio = {
-        width: window.innerWidth / (videoSize?.height ?? window.innerWidth),
-        height: window.innerHeight / (videoSize?.width ?? window.innerHeight),
-      }
-      const rect: [number, number, number, number] = [p.bbox[0] * ratio.width, p.bbox[1] * ratio.height, p.bbox[2] * ratio.width, p.bbox[3] * ratio.height]
-      console.log(p.bbox, rect)
-      ctx.rect(...rect)
+      //ctx.beginPath()
+      /*const ratio = {
+        width: window.innerWidth / (videoSize?.width ?? window.innerWidth),
+        height: window.innerHeight / (videoSize?.height ?? window.innerHeight),
+      }*/
+      //const rect: [number, number, number, number] = [p.bbox[0] * ratio.width, p.bbox[1] * ratio.height, p.bbox[2] * ratio.width, p.bbox[3] * ratio.height]
+      //console.log(p.bbox, rect)
       ctx.lineWidth = 1
       ctx.strokeStyle = '#FF0000'
+      ctx.strokeRect(...p.bbox)
       ctx.fillStyle = 'green'
-      ctx.stroke()
       ctx.fillText(
         `${p.score.toFixed(3)} ${p.class}`,
-        rect[0],
-        rect[1] > 10 ? rect[1] - 5 : 10
+        p.bbox[0],
+        p.bbox[1] > 10 ? p.bbox[1] - 5 : 10
       )
     })
   }, [predicted, videoSize])
-
-  useEffect(() => {
-    CocoSsd.load({ base: 'lite_mobilenet_v2' })
-      .then((m) => model.current = m)
-  }, [])
 
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
     if (!bleAvailable) return null
@@ -122,17 +122,18 @@ const HomeScreen = () => {
     <div>
       <div style={{ width: window.innerWidth, height: window.innerHeight }}>
         <video
-          style={{ width: window.innerWidth, height: window.innerHeight }}
+          style={{ width: window.innerWidth, height: window.innerHeight, position: 'fixed', top: 0, left: 0 }}
           width={window.innerWidth}
           height={window.innerHeight}
           ref={camera}
           autoPlay
+          muted
+          playsInline
+          controls={false}
         />
-      </div>
-      <div style={{ width: window.innerWidth, height: window.innerHeight, position: 'absolute', top: 0, left: 0 }}>
         <canvas
           ref={canvas}
-          style={{ width: window.innerWidth, height: window.innerHeight, display: 'block' }}
+          style={{ width: window.innerWidth, height: window.innerHeight, display: 'block', position: 'fixed', top: 0, left: 0 }}
           width={window.innerWidth}
           height={window.innerHeight}
         />
