@@ -50,10 +50,10 @@ const HomeScreen = () => {
         audio: false,
         video: {
           width: {
-            exact: window.innerWidth
+            exact: window.innerHeight
           },
           height: {
-            exact: window.innerHeight
+            exact: window.innerWidth
           },
           facingMode: {
             exact: 'environment'
