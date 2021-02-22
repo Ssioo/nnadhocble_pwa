@@ -1,8 +1,9 @@
+
 /*
  * Copyright: Copyright (c) 2021. wooisso <yeonwoo.cho@yonsei.ac.kr>
  * License: MIT
- * nnadhocble_pwa from Mobed Laboratory, Yonsei University
- * Last Updated At 21. 2. 19. 오후 4:37
+ * webcross_ar_app from Mobed Laboratory, Yonsei University
+ * Last Updated At 21. 2. 22. 오후 2:03
  *
  * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
  */
@@ -13,6 +14,8 @@ import { deviceStore } from '../stores/device'
 import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
+import { homeStore } from '../stores/home'
+import { ARView } from './components/ar-view'
 
 const detectFromVideoFrame = (
   model,
@@ -28,21 +31,21 @@ const detectFromVideoFrame = (
 }
 
 const HomeScreen = () => {
-  const [bleAvailable, setBleAvailable] = useState(false)
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
   const [predicted, setPredicted] = useState<CocoSsd.DetectedObject[]>([])
   const [videoSize, setVideoSize] = useState<{ width: number, height: number }>()
 
-  const camera = useRef<HTMLVideoElement | null>(null)
-  const canvas = useRef<HTMLCanvasElement | null>(null)
+  const cameraView = useRef<HTMLVideoElement | null>(null)
+  const canvasView = useRef<HTMLCanvasElement | null>(null)
   const model = useRef<CocoSsd.ObjectDetection | null>(null)
 
   useEffect(() => {
     if (navigator.bluetooth && 'getAvailability' in navigator.bluetooth) {
-      navigator.bluetooth.getAvailability().then((a) => {
-        console.log('BLE is in: ', a)
-        setBleAvailable(a)
-      })
+      navigator.bluetooth.getAvailability()
+        .then((a) => {
+          console.log('BLE is in: ', a)
+          homeStore.bleAvailable = a
+        })
     }
     if (navigator.mediaDevices && 'getUserMedia' in navigator.mediaDevices) {
       // 1. Load MediaDevice
@@ -50,7 +53,7 @@ const HomeScreen = () => {
         audio: false,
         video: {
           width: {
-            exact: window.innerHeight
+            exact: window.innerHeight // 왜 뒤집어져야 제대로 맞는지 모르겠음. orientation에 대한 항목?
           },
           height: {
             exact: window.innerWidth
@@ -60,9 +63,10 @@ const HomeScreen = () => {
           },
         }
       }).then((stream) => {
-        const video = camera.current
+        const video = cameraView.current
         if (!video) return
         video.srcObject = stream
+        homeStore.localVideoTrack = stream.getVideoTracks()
         video.onplay = () => {
           setVideoSize({
             width: video.videoWidth,
@@ -83,7 +87,7 @@ const HomeScreen = () => {
       Promise.all([modelPromise, mediaPromise])
         .then((values) => {
           model.current = values[0]
-          detectFromVideoFrame(values[0], camera.current!!, setPredicted)
+          detectFromVideoFrame(values[0], cameraView.current!!, setPredicted)
         })
     }
 
@@ -94,7 +98,7 @@ const HomeScreen = () => {
   }, [])
 
   useEffect(() => {
-    const canv = canvas.current
+    const canv = canvasView.current
     const ctx = canv?.getContext('2d')
     if (!canv || !ctx) return
     ctx.clearRect(0, 0, canv.width, canv.height)
@@ -114,17 +118,14 @@ const HomeScreen = () => {
   }, [predicted, videoSize])
 
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
-    if (!bleAvailable) return null
-    console.log('scanning...1')
+    if (!homeStore.bleAvailable) return null
     if (!navigator.bluetooth || !('requestLEScan' in navigator.bluetooth)) return null // TODO: Samsung Internet & Windows에서 Chrome 지원 필요.
     const scan = await navigator.bluetooth.requestLEScan({ acceptAllAdvertisements: true })
-    console.log('scanning...2')
     navigator.bluetooth.addEventListener('advertisementreceived', (event) => {
       const newDevices = new Set([...deviceStore.devices, event.device])
       deviceStore.devices = [...newDevices]
       deviceStore.deviceDataMap.set(event.device, { rssi: event.rssi, txPower: event.txPower })
     })
-    console.log('scanning...3')
     setScan(scan)
     return scan
   }
@@ -136,17 +137,28 @@ const HomeScreen = () => {
           style={{ width: window.innerWidth, height: window.innerHeight, position: 'fixed', top: 0, left: 0 }}
           width={window.innerWidth}
           height={window.innerHeight}
-          ref={camera}
+          ref={cameraView}
           autoPlay
           muted
           playsInline
           controls={false}
         />
         <canvas
-          ref={canvas}
-          style={{ width: window.innerWidth, height: window.innerHeight, display: 'block', position: 'fixed', top: 0, left: 0 }}
+          ref={canvasView}
+          style={{
+            width: window.innerWidth,
+            height: window.innerHeight,
+            display: 'block',
+            position: 'fixed',
+            top: 0,
+            left: 0
+          }}
           width={window.innerWidth}
           height={window.innerHeight}
+        />
+        <ARView
+          light={50}
+          modelUrl='interpolationTest.glb'
         />
       </div>
     </div>

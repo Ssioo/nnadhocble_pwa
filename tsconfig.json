@@ -10,6 +10,7 @@
       "DOM.Iterable",
       "webworker"
     ],
+
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "Node",
@@ -29,6 +30,8 @@
     "node_modules", "build"
   ],
   "include": [
-    "src"
+    "src",
+    "node_modules/@types/web-bluetooth/index.d.ts",
+    "node_modules/@types/web-bluetooth/index.d.ts"
   ]
 }
