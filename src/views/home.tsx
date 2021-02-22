@@ -143,7 +143,7 @@ const HomeScreen = () => {
           playsInline
           controls={false}
         />
-        <canvas
+        {/*<canvas
           ref={canvasView}
           style={{
             width: window.innerWidth,
@@ -155,9 +155,17 @@ const HomeScreen = () => {
           }}
           width={window.innerWidth}
           height={window.innerHeight}
-        />
+        />*/}
         <ARView
           light={50}
+          style={{
+            width: window.innerWidth,
+            height: window.innerHeight,
+            display: 'block',
+            position: 'fixed',
+            top: 0,
+            left: 0
+          }}
           modelUrl='interpolationTest.glb'
         />
       </div>
