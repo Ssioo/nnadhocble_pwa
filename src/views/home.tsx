@@ -1,4 +1,3 @@
-
 /*
  * Copyright: Copyright (c) 2021. wooisso <yeonwoo.cho@yonsei.ac.kr>
  * License: MIT
@@ -8,8 +7,7 @@
  * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
  */
 
-import { useEffect, useRef, useState } from 'react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { deviceStore } from '../stores/device'
 import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
@@ -17,7 +15,7 @@ import * as CocoSsd from '@tensorflow-models/coco-ssd'
 import { homeStore } from '../stores/home'
 import { AROverlay } from './components/ar-view'
 import { observer } from 'mobx-react-lite'
-import { reaction } from 'mobx'
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../infra/constants'
 
 const HomeScreen = observer(() => {
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
@@ -36,10 +34,10 @@ const HomeScreen = observer(() => {
         audio: false,
         video: {
           width: {
-            exact: window.innerHeight // 왜 뒤집어져야 제대로 맞는지 모르겠음. orientation에 대한 항목?
+            exact: WINDOW_HEIGHT // 왜 뒤집어져야 제대로 맞는지 모르겠음. orientation에 대한 항목?
           },
           height: {
-            exact: window.innerWidth
+            exact: WINDOW_WIDTH
           },
           facingMode: {
             exact: 'environment'
@@ -88,17 +86,17 @@ const HomeScreen = observer(() => {
   }
 
   return (
-    <div style={{ width: window.innerWidth, height: window.innerHeight }}>
+    <div style={{ width: WINDOW_WIDTH, height: WINDOW_HEIGHT }}>
       <video
         style={{
-          width: window.innerWidth,
-          height: window.innerHeight,
+          width: WINDOW_WIDTH,
+          height: WINDOW_HEIGHT,
           position: 'fixed',
           top: 0,
           left: 0
         }}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={WINDOW_WIDTH}
+        height={WINDOW_HEIGHT}
         ref={homeStore.cameraView}
         autoPlay
         muted
@@ -106,10 +104,9 @@ const HomeScreen = observer(() => {
         controls={false}
       />
       <AROverlay
-        light={50}
         style={{
-          width: window.innerWidth,
-          height: window.innerHeight,
+          width: WINDOW_WIDTH,
+          height: WINDOW_HEIGHT,
           display: 'block',
           position: 'fixed',
           top: 0,

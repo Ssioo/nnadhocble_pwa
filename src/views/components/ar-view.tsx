@@ -2,15 +2,17 @@ import React, { useEffect } from 'react'
 import { LinearFilter, Mesh, MeshBasicMaterial, PerspectiveCamera, RGBFormat, VideoTexture, WebGLRenderer } from 'three'
 import { homeStore } from '../../stores/home'
 import { observer } from 'mobx-react-lite'
+import { WINDOW_HEIGHT, WINDOW_RATIO, WINDOW_WIDTH } from '../../infra/constants'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import home from '../home'
 
 export const AROverlay: React.FC<{
-  light?: number,
   modelUrl: string,
-  style?: any,
-}> = observer(({ modelUrl, light, style }) => {
+  style?: React.CSSProperties,
+}> = observer(({ modelUrl, style }) => {
 
   useEffect(() => {
-    homeStore.camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20)
+    homeStore.camera = new PerspectiveCamera( 70, WINDOW_RATIO, 0.01, 20)
     homeStore.camera.position.z = 1
 
     homeStore.texture = new VideoTexture(homeStore.cameraView.current!!)
@@ -23,7 +25,7 @@ export const AROverlay: React.FC<{
     homeStore.scene.add(mesh)
 
     const renderer = new WebGLRenderer({ antialias: true, canvas: homeStore.canvasView.current!! })
-    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
    /* const element = document.getElementById('overlay')
     const newCanv = renderer.domElement
@@ -32,23 +34,19 @@ export const AROverlay: React.FC<{
     newCanv.style.position = 'fixed'*/
     //element?.prepend(newCanv)
 
-    /*const loader = new GLTFLoader()
+    const loader = new GLTFLoader()
     loader.loadAsync(modelUrl)
-      .then((m) => scene.add(m.scene))*/
+      .then((m) => {
+        m.scene.id = 1
+        homeStore.scene.add(m.scene)
+      })
   }, [])
 
   return (
     <div style={style} id='overlay'>
       <canvas
         ref={homeStore.canvasView}
-        style={{
-          width: window.innerWidth,
-          height: window.innerHeight,
-          display: 'block',
-          position: 'fixed',
-          top: 0,
-          left: 0
-        }}
+        style={style}
         width={window.innerWidth}
         height={window.innerHeight}
       />

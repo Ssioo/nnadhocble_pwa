@@ -23,3 +23,7 @@ export const FIREBASE_CONFIG = {
 }
 
 export const FCM_KEY = 'BPowusk4igXsw2fQBJ856ZJUSAkTAE81LRe84c7_6ZWD2nP0WDew1BhBShVlXg856bgTD-YkmHEGP_i_GoZnwaA'
+
+export const WINDOW_WIDTH = window.innerWidth
+export const WINDOW_HEIGHT = window.innerHeight
+export const WINDOW_RATIO = WINDOW_WIDTH / WINDOW_HEIGHT

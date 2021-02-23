@@ -25,7 +25,6 @@ class HomeStore {
   @observable localVideoTrack: MediaStreamTrack[] | null = null
   @observable localAudioTrack: MediaStreamTrack[] | null = null
   @observable predicted: CocoSsd.DetectedObject[] = []
-
   @observable renderer: WebGLRenderer | null = null
   @observable scene: Scene = new Scene()
   @observable texture: VideoTexture | null = null
@@ -34,20 +33,15 @@ class HomeStore {
   @observable camera: PerspectiveCamera | null = null
   @observable geometry: PlaneBufferGeometry = new PlaneBufferGeometry()
 
-
   cameraView: RefObject<HTMLVideoElement> = createRef()
   canvasView: RefObject<HTMLCanvasElement> = createRef()
   model: CocoSsd.ObjectDetection | null = null
-
-  constructor() {
-  }
 
   @action
   async detectFromVideoFrame() {
     if (!this.cameraView.current || !this.model) return
     try {
       this.predicted = await this.model?.detect(this.cameraView.current!!)
-      this.drawDetectedObjects(this.predicted)
       if (this.scene && this.camera)
         this.renderer?.render(this.scene, this.camera)
       requestAnimationFrame(() => {
@@ -58,14 +52,14 @@ class HomeStore {
 
   drawDetectedObjects(predictions: CocoSsd.DetectedObject[]) {
     const canv = this.canvasView.current
-    const ctx = canv?.getContext('2d')
     const gl = canv?.getContext('webgl2')
-    if (!canv || !ctx) return
-    gl?.clearColor(0, 0, 0, 0)
-    gl?.clear(gl.COLOR_BUFFER_BIT)
-    ctx.clearRect(0, 0, canv.width, canv.height)
+    if (!canv || !gl) return
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+    gl.clearColor(0, 0, 0, 1)
+    gl.clear(gl.COLOR_BUFFER_BIT)
+    this.drawSquare(gl)
 
-    if (predictions.length === 0) return
+    /*if (predictions.length === 0) return
     ctx.font = '24px helvetica'
     predictions.forEach((p) => {
       ctx.lineWidth = 1
@@ -77,7 +71,21 @@ class HomeStore {
         p.bbox[0],
         p.bbox[1] > 10 ? p.bbox[1] - 5 : 10
       )
-    })
+    })*/
+  }
+
+  drawSquare(gl: WebGL2RenderingContext) {
+    const positionBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+    const positions = [
+      -0.2, -0.2, 0,
+      0.2, -0.2, 0,
+      0.2, 0.2, 0,
+      -0.2, 0.2, 0
+    ]
+    const indices = [0, 1, 2, 0, 2, 3]
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0)
   }
 }
 
