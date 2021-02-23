@@ -10,6 +10,15 @@
 import { action, observable, reaction } from 'mobx'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
 import { createRef, RefObject } from 'react'
+import {
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  PlaneBufferGeometry,
+  Scene,
+  VideoTexture,
+  WebGLRenderer
+} from 'three'
 
 class HomeStore {
   @observable bleAvailable = false
@@ -17,41 +26,54 @@ class HomeStore {
   @observable localAudioTrack: MediaStreamTrack[] | null = null
   @observable predicted: CocoSsd.DetectedObject[] = []
 
+  @observable renderer: WebGLRenderer | null = null
+  @observable scene: Scene = new Scene()
+  @observable texture: VideoTexture | null = null
+  @observable material: MeshBasicMaterial | null = null
+  @observable mesh: Mesh | null = null
+  @observable camera: PerspectiveCamera | null = null
+  @observable geometry: PlaneBufferGeometry = new PlaneBufferGeometry()
+
+
   cameraView: RefObject<HTMLVideoElement> = createRef()
   canvasView: RefObject<HTMLCanvasElement> = createRef()
   model: CocoSsd.ObjectDetection | null = null
 
   constructor() {
-    reaction(() => this.predicted, (ps) => {
-      const canv = this.canvasView.current
-      const ctx = canv?.getContext('2d')
-      if (!canv || !ctx) return
-      ctx.clearRect(0, 0, canv.width, canv.height)
-
-      if (ps.length === 0) return
-      ctx.font = '24px helvetica'
-      ps.forEach((p) => {
-        ctx.lineWidth = 1
-        ctx.strokeStyle = '#FF0000'
-        ctx.strokeRect(...p.bbox)
-        ctx.fillStyle = '#00FF00'
-        ctx.fillText(
-          `${p.score.toFixed(3)} ${p.class}`,
-          p.bbox[0],
-          p.bbox[1] > 10 ? p.bbox[1] - 5 : 10
-        )
-      })
-    })
   }
 
   @action
-  detectFromVideoFrame() {
+  async detectFromVideoFrame() {
     if (!this.cameraView.current || !this.model) return
-    this.model?.detect(this.cameraView.current).then((predictions) => {
-      homeStore.predicted = predictions
+    try {
+      this.predicted = await this.model?.detect(this.canvasView.current!!)
+      this.drawDetectedObjects(this.predicted)
+      if (this.scene && this.camera)
+        this.renderer?.render(this.scene, this.camera)
       requestAnimationFrame(() => {
         this.detectFromVideoFrame()
       })
+    } catch (e) {}
+  }
+
+  drawDetectedObjects(predictions: CocoSsd.DetectedObject[]) {
+    const canv = this.canvasView.current
+    const ctx = canv?.getContext('2d')
+    if (!canv || !ctx) return
+    ctx.clearRect(0, 0, canv.width, canv.height)
+
+    if (predictions.length === 0) return
+    ctx.font = '24px helvetica'
+    predictions.forEach((p) => {
+      ctx.lineWidth = 1
+      ctx.strokeStyle = '#FF0000'
+      ctx.strokeRect(...p.bbox)
+      ctx.fillStyle = '#00FF00'
+      ctx.fillText(
+        `${p.score.toFixed(3)} ${p.class}`,
+        p.bbox[0],
+        p.bbox[1] > 10 ? p.bbox[1] - 5 : 10
+      )
     })
   }
 }
