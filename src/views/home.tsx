@@ -131,44 +131,43 @@ const HomeScreen = () => {
   }
 
   return (
-    <div>
-      <div style={{ width: window.innerWidth, height: window.innerHeight }}>
-        <video
-          style={{ width: window.innerWidth, height: window.innerHeight, position: 'fixed', top: 0, left: 0 }}
-          width={window.innerWidth}
-          height={window.innerHeight}
-          ref={cameraView}
-          autoPlay
-          muted
-          playsInline
-          controls={false}
-        />
-        <canvas
-          ref={canvasView}
-          style={{
-            width: window.innerWidth,
-            height: window.innerHeight,
-            display: 'block',
-            position: 'fixed',
-            top: 0,
-            left: 0
-          }}
-          width={window.innerWidth}
-          height={window.innerHeight}
-        />
-        <ARView
-          light={50}
-          style={{
-            width: window.innerWidth,
-            height: window.innerHeight,
-            display: 'block',
-            position: 'fixed',
-            top: 0,
-            left: 0
-          }}
-          modelUrl='interpolationTest.glb'
-        />
-      </div>
+    <div style={{ width: window.innerWidth, height: window.innerHeight }}>
+      <video
+        style={{ width: window.innerWidth, height: window.innerHeight, position: 'fixed', top: 0, left: 0 }}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        ref={cameraView}
+        autoPlay
+        muted
+        playsInline
+        controls={false}
+      />
+      <canvas
+        ref={canvasView}
+        style={{
+          width: window.innerWidth,
+          height: window.innerHeight,
+          display: 'block',
+          position: 'fixed',
+          top: 0,
+          left: 0
+        }}
+        width={window.innerWidth}
+        height={window.innerHeight}
+      />
+      <ARView
+        light={50}
+        style={{
+          width: window.innerWidth,
+          height: window.innerHeight,
+          display: 'block',
+          position: 'fixed',
+          top: 0,
+          left: 0
+        }}
+        video={cameraView}
+        modelUrl='interpolationTest.glb'
+      />
     </div>
   )
 }

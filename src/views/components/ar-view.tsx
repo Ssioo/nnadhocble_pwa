@@ -1,50 +1,59 @@
-import React, { useEffect, useRef } from 'react'
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { ARButton } from 'three/examples/jsm/webxr/ARButton'
+import React, { RefObject, useEffect } from 'react'
+import {
+  HemisphereLight,
+  LinearFilter, Mesh, MeshBasicMaterial,
+  PerspectiveCamera,
+  PlaneBufferGeometry,
+  RGBFormat,
+  Scene,
+  VideoTexture,
+  WebGLRenderer
+} from 'three'
+
+const updateUI = (renderer, scene, camera) => {
+  requestAnimationFrame(() => {
+    updateUI(renderer, scene, camera)
+  })
+  renderer.render(scene, camera)
+}
 
 export const ARView: React.FC<{
   light?: number,
   modelUrl: string,
   style?: any,
-}> = ({ modelUrl, light, style }) => {
-
+  video: RefObject<HTMLVideoElement>
+}> = ({ modelUrl, light, style, video }) => {
   useEffect(() => {
     const scene = new Scene()
     const camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20)
-    scene.add(camera)
+    camera.position.z = 1
 
-    const renderer = new WebGLRenderer({ antialias: true, alpha: true })
-    renderer.setClearAlpha(0.0)
-    renderer.setPixelRatio(window.devicePixelRatio)
+    const texture = new VideoTexture(video.current!!)
+    texture.minFilter = LinearFilter
+    texture.magFilter = LinearFilter
+    texture.format = RGBFormat
+
+    const geometry = new PlaneBufferGeometry()
+    const material = new MeshBasicMaterial({ map: texture })
+    const mesh = new Mesh(geometry, material)
+    scene.add(mesh)
+
+    const renderer = new WebGLRenderer({ antialias: true })
     renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.xr.enabled = true
+
     const element = document.getElementById('render_space')
     const newCanv = renderer.domElement
     newCanv.style.top = '0'
     newCanv.style.left = '0'
     newCanv.style.position = 'fixed'
-    element?.parentNode?.replaceChild(newCanv, element)
-    element?.parentNode?.appendChild(ARButton.createButton(renderer))
+    element?.parentNode?.appendChild(newCanv)
 
-    const loader = new GLTFLoader()
-    loader.load(
-      modelUrl,
-      (gltf) => {
-        scene.add(gltf.scene)
-        renderer.setAnimationLoop((time) => {
-          renderer.render(scene, camera)
-        })
-      },
-      (xhr) => {
-      },
-      (e) => {
-        console.log(e)
-      }
-    )
+    /*const loader = new GLTFLoader()
+    loader.loadAsync(modelUrl)
+      .then((m) => scene.add(m.scene))*/
 
-    return () => {
-    }
+    updateUI(renderer, scene, camera)
+
   }, [])
 
   return (
