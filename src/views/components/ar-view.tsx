@@ -53,7 +53,6 @@ export const ARView: React.FC<{
       .then((m) => scene.add(m.scene))*/
 
     updateUI(renderer, scene, camera)
-
   }, [])
 
   return (

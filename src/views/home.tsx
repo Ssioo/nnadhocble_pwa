@@ -100,6 +100,7 @@ const HomeScreen = () => {
   useEffect(() => {
     const canv = canvasView.current
     const ctx = canv?.getContext('2d')
+    const gl = canv?.getContext('webgl2')
     if (!canv || !ctx) return
     ctx.clearRect(0, 0, canv.width, canv.height)
     if (predicted.length === 0) return
@@ -133,7 +134,7 @@ const HomeScreen = () => {
   return (
     <div style={{ width: window.innerWidth, height: window.innerHeight }}>
       <video
-        style={{ width: window.innerWidth, height: window.innerHeight, position: 'fixed', top: 0, left: 0 }}
+        style={{ width: window.innerWidth, height: window.innerHeight, position: 'fixed', top: 0, left: 0, display: 'none' }}
         width={window.innerWidth}
         height={window.innerHeight}
         ref={cameraView}
@@ -141,19 +142,6 @@ const HomeScreen = () => {
         muted
         playsInline
         controls={false}
-      />
-      <canvas
-        ref={canvasView}
-        style={{
-          width: window.innerWidth,
-          height: window.innerHeight,
-          display: 'block',
-          position: 'fixed',
-          top: 0,
-          left: 0
-        }}
-        width={window.innerWidth}
-        height={window.innerHeight}
       />
       <ARView
         light={50}
@@ -167,6 +155,19 @@ const HomeScreen = () => {
         }}
         video={cameraView}
         modelUrl='interpolationTest.glb'
+      />
+      <canvas
+        ref={canvasView}
+        style={{
+          width: window.innerWidth,
+          height: window.innerHeight,
+          display: 'block',
+          position: 'fixed',
+          top: 0,
+          left: 0
+        }}
+        width={window.innerWidth}
+        height={window.innerHeight}
       />
     </div>
   )
