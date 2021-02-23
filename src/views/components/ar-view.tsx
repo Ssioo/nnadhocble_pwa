@@ -4,16 +4,15 @@ import { homeStore } from '../../stores/home'
 import { observer } from 'mobx-react-lite'
 import { WINDOW_HEIGHT, WINDOW_RATIO, WINDOW_WIDTH } from '../../infra/constants'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import home from '../home'
+import 'aframe'
+import { Scene, Entity } from 'aframe-react/dist'
 
 export const AROverlay: React.FC<{
   modelUrl: string,
   style?: React.CSSProperties,
 }> = observer(({ modelUrl, style }) => {
-  if (!homeStore.cameraView.current) return null
-
   useEffect(() => {
-    homeStore.camera = new PerspectiveCamera( 70, WINDOW_RATIO, 0.01, 20)
+    /*homeStore.camera = new PerspectiveCamera( 70, WINDOW_RATIO, 0.01, 20)
     homeStore.camera.position.z = 1
 
     homeStore.texture = new VideoTexture(homeStore.cameraView.current!!)
@@ -35,16 +34,20 @@ export const AROverlay: React.FC<{
     newCanv.style.position = 'fixed'
     newCanv.width = WINDOW_WIDTH
     newCanv.height = WINDOW_HEIGHT
-    element?.appendChild(newCanv)
+    //element?.appendChild(newCanv)
 
     const loader = new GLTFLoader()
     loader.loadAsync(modelUrl)
       .then((m) => {
         homeStore.scene.add(m.scene)
-      })
+      })*/
   }, [])
 
   return (
-    <div style={style} id='overlay'/>
+    <div style={style} id='overlay'>
+      <Scene style={style}>
+        <Entity gltf-model={{src: modelUrl}} />
+      </Scene>
+    </div>
   )
 })

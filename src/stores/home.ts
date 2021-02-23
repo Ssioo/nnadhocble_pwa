@@ -11,11 +11,13 @@ import { action, observable, reaction } from 'mobx'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
 import { createRef, RefObject } from 'react'
 import {
+  BufferGeometry, Line,
+  Material,
   Mesh,
   MeshBasicMaterial,
   PerspectiveCamera,
   PlaneBufferGeometry,
-  Scene,
+  Scene, Vector3,
   VideoTexture,
   WebGLRenderer
 } from 'three'
@@ -41,12 +43,14 @@ class HomeStore {
   async detectFromVideoFrame() {
     if (!this.cameraView.current || !this.model) return
     try {
-      this.predicted = await this.model?.detect(this.cameraView.current!!)
-      if (this.scene && this.camera) {
+      const predictions = await this.model?.detect(this.cameraView.current!!)
+      this.predicted = predictions
+      if (this.camera) {
+        this.drawDetectedObjects(predictions)
         this.renderer?.render(this.scene, this.camera)
         console.log('Frame Updated')
       }
-      requestAnimationFrame(() => {
+      requestAnimationFrame((time) => {
         this.detectFromVideoFrame()
       })
     } catch (e) {
@@ -55,16 +59,19 @@ class HomeStore {
   }
 
   drawDetectedObjects(predictions: CocoSsd.DetectedObject[]) {
-    const canv = this.canvasView.current
-    const gl = canv?.getContext('webgl2')
-    if (!canv || !gl) return
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-    gl.clearColor(0, 0, 0, 1)
-    gl.clear(gl.COLOR_BUFFER_BIT)
-    this.drawSquare(gl)
+    predictions.map((p) => {
+      const geo = new BufferGeometry().setFromPoints([
+        new Vector3(-10, 0, 0),
+        new Vector3(0, 10, 0),
+        new Vector3(10, 0, 0),
+      ])
+      const line = new Line(geo, )
+
+    })
+
+    this.scene.add()
 
     /*if (predictions.length === 0) return
-    ctx.font = '24px helvetica'
     predictions.forEach((p) => {
       ctx.lineWidth = 1
       ctx.strokeStyle = '#FF0000'
@@ -76,20 +83,6 @@ class HomeStore {
         p.bbox[1] > 10 ? p.bbox[1] - 5 : 10
       )
     })*/
-  }
-
-  drawSquare(gl: WebGL2RenderingContext) {
-    const positionBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-    const positions = [
-      -0.2, -0.2, 0,
-      0.2, -0.2, 0,
-      0.2, 0.2, 0,
-      -0.2, 0.2, 0
-    ]
-    const indices = [0, 1, 2, 0, 2, 3]
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
-    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0)
   }
 }
 

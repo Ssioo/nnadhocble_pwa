@@ -14,6 +14,8 @@
     "@types/socket.io-client": "^1.4.35",
     "@types/web-bluetooth": "^0.0.9",
     "@types/webgl2": "^0.0.5",
+    "aframe": "^1.2.0",
+    "aframe-react": "^4.4.0",
     "clean-webpack-plugin": "^3.0.0",
     "eslint": "^7.19.0",
     "firebase": "^8.2.5",
