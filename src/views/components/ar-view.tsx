@@ -37,7 +37,6 @@ export const AROverlay: React.FC<{
     const loader = new GLTFLoader()
     loader.loadAsync(modelUrl)
       .then((m) => {
-        m.scene.id = 1
         homeStore.scene.add(m.scene)
       })
   }, [])
