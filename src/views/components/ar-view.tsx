@@ -24,15 +24,17 @@ export const AROverlay: React.FC<{
     const mesh = new Mesh(homeStore.geometry, homeStore.material)
     homeStore.scene.add(mesh)
 
-    const renderer = new WebGLRenderer({ antialias: true, canvas: homeStore.canvasView.current!! })
+    const renderer = new WebGLRenderer({ antialias: true })
     renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
-   /* const element = document.getElementById('overlay')
+    const element = document.getElementById('overlay')
     const newCanv = renderer.domElement
     newCanv.style.top = '0'
     newCanv.style.left = '0'
-    newCanv.style.position = 'fixed'*/
-    //element?.prepend(newCanv)
+    newCanv.style.position = 'fixed'
+    newCanv.width = WINDOW_WIDTH
+    newCanv.height = WINDOW_HEIGHT
+    element?.appendChild(newCanv)
 
     const loader = new GLTFLoader()
     loader.loadAsync(modelUrl)
@@ -42,13 +44,6 @@ export const AROverlay: React.FC<{
   }, [])
 
   return (
-    <div style={style} id='overlay'>
-      <canvas
-        ref={homeStore.canvasView}
-        style={style}
-        width={window.innerWidth}
-        height={window.innerHeight}
-      />
-    </div>
+    <div style={style} id='overlay'/>
   )
 })
