@@ -10,6 +10,7 @@ export const AROverlay: React.FC<{
   modelUrl: string,
   style?: React.CSSProperties,
 }> = observer(({ modelUrl, style }) => {
+  if (!homeStore.cameraView.current) return null
 
   useEffect(() => {
     homeStore.camera = new PerspectiveCamera( 70, WINDOW_RATIO, 0.01, 20)
