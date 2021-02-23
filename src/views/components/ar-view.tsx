@@ -24,7 +24,7 @@ export const AROverlay: React.FC<{
     const mesh = new Mesh(homeStore.geometry, homeStore.material)
     homeStore.scene.add(mesh)
 
-    const renderer = new WebGLRenderer({ antialias: true })
+    const renderer = new WebGLRenderer({ antialias: true, alpha: true })
     renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
     const element = document.getElementById('overlay')
