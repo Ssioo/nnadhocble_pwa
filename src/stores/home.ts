@@ -46,7 +46,7 @@ class HomeStore {
   async detectFromVideoFrame() {
     if (!this.cameraView.current || !this.model) return
     try {
-      this.predicted = await this.model?.detect(this.canvasView.current!!)
+      this.predicted = await this.model?.detect(this.cameraView.current!!)
       this.drawDetectedObjects(this.predicted)
       if (this.scene && this.camera)
         this.renderer?.render(this.scene, this.camera)
@@ -59,7 +59,10 @@ class HomeStore {
   drawDetectedObjects(predictions: CocoSsd.DetectedObject[]) {
     const canv = this.canvasView.current
     const ctx = canv?.getContext('2d')
+    const gl = canv?.getContext('webgl2')
     if (!canv || !ctx) return
+    gl?.clearColor(0, 0, 0, 0)
+    gl?.clear(gl.COLOR_BUFFER_BIT)
     ctx.clearRect(0, 0, canv.width, canv.height)
 
     if (predictions.length === 0) return
