@@ -15,29 +15,11 @@ import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
 import { homeStore } from '../stores/home'
-import { ARView } from './components/ar-view'
+import { AROverlay } from './components/ar-view'
+import { observer } from 'mobx-react-lite'
 
-const detectFromVideoFrame = (
-  model,
-  video: HTMLVideoElement,
-  setPredicted: (predictions: CocoSsd.DetectedObject[]) => void
-) => {
-  model.detect(video).then((predictions) => {
-    setPredicted(predictions)
-    requestAnimationFrame(() => {
-      detectFromVideoFrame(model, video, setPredicted)
-    })
-  })
-}
-
-const HomeScreen = () => {
+const HomeScreen = observer(() => {
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
-  const [predicted, setPredicted] = useState<CocoSsd.DetectedObject[]>([])
-  const [videoSize, setVideoSize] = useState<{ width: number, height: number }>()
-
-  const cameraView = useRef<HTMLVideoElement | null>(null)
-  const canvasView = useRef<HTMLCanvasElement | null>(null)
-  const model = useRef<CocoSsd.ObjectDetection | null>(null)
 
   useEffect(() => {
     if (navigator.bluetooth && 'getAvailability' in navigator.bluetooth) {
@@ -63,16 +45,10 @@ const HomeScreen = () => {
           },
         }
       }).then((stream) => {
-        const video = cameraView.current
+        const video = homeStore.cameraView.current
         if (!video) return
         video.srcObject = stream
         homeStore.localVideoTrack = stream.getVideoTracks()
-        video.onplay = () => {
-          setVideoSize({
-            width: video.videoWidth,
-            height: video.videoHeight,
-          })
-        }
         return new Promise((resolve) => {
           video.onloadedmetadata = () => {
             resolve(true)
@@ -86,37 +62,16 @@ const HomeScreen = () => {
       // Wait for both 1 & 2
       Promise.all([modelPromise, mediaPromise])
         .then((values) => {
-          model.current = values[0]
-          detectFromVideoFrame(values[0], cameraView.current!!, setPredicted)
+          homeStore.model.current = values[0]
+          homeStore.detectFromVideoFrame()
         })
     }
 
     return () => {
       scan?.stop()
-      model.current?.dispose()
+      homeStore.model.current?.dispose()
     }
   }, [])
-
-  useEffect(() => {
-    const canv = canvasView.current
-    const ctx = canv?.getContext('2d')
-    const gl = canv?.getContext('webgl2')
-    if (!canv || !ctx) return
-    ctx.clearRect(0, 0, canv.width, canv.height)
-    if (predicted.length === 0) return
-    ctx.font = '24px helvetica'
-    predicted.forEach((p) => {
-      ctx.lineWidth = 1
-      ctx.strokeStyle = '#FF0000'
-      ctx.strokeRect(...p.bbox)
-      ctx.fillStyle = 'green'
-      ctx.fillText(
-        `${p.score.toFixed(3)} ${p.class}`,
-        p.bbox[0],
-        p.bbox[1] > 10 ? p.bbox[1] - 5 : 10
-      )
-    })
-  }, [predicted, videoSize])
 
   const scanBles = async (): Promise<BluetoothLEScan | null> => {
     if (!homeStore.bleAvailable) return null
@@ -134,16 +89,22 @@ const HomeScreen = () => {
   return (
     <div style={{ width: window.innerWidth, height: window.innerHeight }}>
       <video
-        style={{ width: window.innerWidth, height: window.innerHeight, position: 'fixed', top: 0, left: 0, display: 'none' }}
+        style={{
+          width: window.innerWidth,
+          height: window.innerHeight,
+          position: 'fixed',
+          top: 0,
+          left: 0
+        }}
         width={window.innerWidth}
         height={window.innerHeight}
-        ref={cameraView}
+        ref={homeStore.cameraView}
         autoPlay
         muted
         playsInline
         controls={false}
       />
-      <ARView
+      <AROverlay
         light={50}
         style={{
           width: window.innerWidth,
@@ -153,23 +114,10 @@ const HomeScreen = () => {
           top: 0,
           left: 0
         }}
-        video={cameraView}
         modelUrl='interpolationTest.glb'
-      />
-      <canvas
-        ref={canvasView}
-        style={{
-          width: window.innerWidth,
-          height: window.innerHeight,
-          display: 'block',
-          position: 'fixed',
-          top: 0,
-          left: 0
-        }}
-        width={window.innerWidth}
-        height={window.innerHeight}
       />
     </div>
   )
-}
+})
+
 export default HomeScreen
