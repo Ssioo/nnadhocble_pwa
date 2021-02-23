@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "experimentalDecorators": true,
     "module": "esnext",
     "target": "esnext",
     "lib": [
@@ -10,8 +11,8 @@
       "DOM.Iterable",
       "webworker"
     ],
-
     "sourceMap": true,
+    "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "Node",
     "esModuleInterop": true,

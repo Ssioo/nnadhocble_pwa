@@ -7,34 +7,34 @@
  * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
  */
 
-import { makeAutoObservable, reaction } from 'mobx'
+import { action, observable, reaction } from 'mobx'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
-import { useRef } from 'react'
+import { createRef, RefObject } from 'react'
 
 class HomeStore {
-  bleAvailable = false
-  localVideoTrack: MediaStreamTrack[] | null = null
-  localAudioTrack: MediaStreamTrack[] | null = null
-  predicted: CocoSsd.DetectedObject[] = []
+  @observable bleAvailable = false
+  @observable localVideoTrack: MediaStreamTrack[] | null = null
+  @observable localAudioTrack: MediaStreamTrack[] | null = null
+  @observable predicted: CocoSsd.DetectedObject[] = []
 
-  cameraView = useRef<HTMLVideoElement | null>(null)
-  canvasView = useRef<HTMLCanvasElement | null>(null)
-  model = useRef<CocoSsd.ObjectDetection | null>(null)
+  cameraView: RefObject<HTMLVideoElement> = createRef()
+  canvasView: RefObject<HTMLCanvasElement> = createRef()
+  model: CocoSsd.ObjectDetection | null = null
 
   constructor() {
-    makeAutoObservable(this)
     reaction(() => this.predicted, (ps) => {
       const canv = this.canvasView.current
       const ctx = canv?.getContext('2d')
       if (!canv || !ctx) return
       ctx.clearRect(0, 0, canv.width, canv.height)
+
       if (ps.length === 0) return
       ctx.font = '24px helvetica'
       ps.forEach((p) => {
         ctx.lineWidth = 1
         ctx.strokeStyle = '#FF0000'
         ctx.strokeRect(...p.bbox)
-        ctx.fillStyle = 'green'
+        ctx.fillStyle = '#00FF00'
         ctx.fillText(
           `${p.score.toFixed(3)} ${p.class}`,
           p.bbox[0],
@@ -44,9 +44,10 @@ class HomeStore {
     })
   }
 
+  @action
   detectFromVideoFrame() {
-    if (!this.cameraView.current || !this.model.current) return
-    this.model.current?.detect(this.cameraView.current).then((predictions) => {
+    if (!this.cameraView.current || !this.model) return
+    this.model?.detect(this.cameraView.current).then((predictions) => {
       homeStore.predicted = predictions
       requestAnimationFrame(() => {
         this.detectFromVideoFrame()

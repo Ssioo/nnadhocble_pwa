@@ -17,6 +17,7 @@ import * as CocoSsd from '@tensorflow-models/coco-ssd'
 import { homeStore } from '../stores/home'
 import { AROverlay } from './components/ar-view'
 import { observer } from 'mobx-react-lite'
+import { reaction } from 'mobx'
 
 const HomeScreen = observer(() => {
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)
@@ -62,14 +63,14 @@ const HomeScreen = observer(() => {
       // Wait for both 1 & 2
       Promise.all([modelPromise, mediaPromise])
         .then((values) => {
-          homeStore.model.current = values[0]
+          homeStore.model = values[0]
           homeStore.detectFromVideoFrame()
         })
     }
 
     return () => {
       scan?.stop()
-      homeStore.model.current?.dispose()
+      homeStore.model?.dispose()
     }
   }, [])
 
