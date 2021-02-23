@@ -42,12 +42,16 @@ class HomeStore {
     if (!this.cameraView.current || !this.model) return
     try {
       this.predicted = await this.model?.detect(this.cameraView.current!!)
-      if (this.scene && this.camera)
+      if (this.scene && this.camera) {
         this.renderer?.render(this.scene, this.camera)
+        console.log('Frame Updated')
+      }
       requestAnimationFrame(() => {
         this.detectFromVideoFrame()
       })
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   drawDetectedObjects(predictions: CocoSsd.DetectedObject[]) {
