@@ -18,7 +18,6 @@ class HomeStore {
   @observable predicted: DetectedObject[] = []
 
   cameraView: RefObject<HTMLVideoElement> = createRef()
-  canvasView: RefObject<HTMLCanvasElement> = createRef()
   model: ObjectDetection | null = null
 
   @action
@@ -27,7 +26,7 @@ class HomeStore {
     try {
       this.predicted = await this.model?.detect(this.cameraView.current!!)
       requestAnimationFrame((time) => {
-        console.log('Frame Updated')
+        console.log('Frame Updated', this.predicted)
         this.detectFromVideoFrame()
       })
     } catch (e) {
