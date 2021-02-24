@@ -13,9 +13,9 @@ import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
 import * as CocoSsd from '@tensorflow-models/coco-ssd'
 import { homeStore } from '../stores/home'
-import { AROverlay } from './components/ar-view'
 import { observer } from 'mobx-react-lite'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../infra/constants'
+import { AROverlay } from './components/ar-overlay'
 
 const HomeScreen = observer(() => {
   const [scan, setScan] = useState<BluetoothLEScan | null>(null)

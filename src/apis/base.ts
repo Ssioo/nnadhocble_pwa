@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright: Copyright (c) 2021. wooisso <yeonwoo.cho@yonsei.ac.kr>
  * License: MIT

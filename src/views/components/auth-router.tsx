@@ -1,8 +1,8 @@
 /*
  * Copyright: Copyright (c) 2021. wooisso <yeonwoo.cho@yonsei.ac.kr>
  * License: MIT
- * nnadhocble_pwa from Mobed Laboratory, Yonsei University
- * Last Updated At 21. 2. 15. 오전 11:46
+ * webcross_ar_app from Mobed Laboratory, Yonsei University
+ * Last Updated At 21. 2. 19. 오후 4:50
  *
  * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
  */
