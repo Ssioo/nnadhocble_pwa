@@ -104,7 +104,7 @@ const HomeScreen = observer(() => {
           top: 0,
           left: 0
         }}
-        objects={homeStore.predicted}
+        objects={homeStore.predictedDisplays}
         modelUrl='interpolationTest.glb'
       />
     </div>

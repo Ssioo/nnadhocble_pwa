@@ -20,6 +20,10 @@ class HomeStore {
   cameraView: RefObject<HTMLVideoElement> = createRef()
   model: ObjectDetection | null = null
 
+  get predictedDisplays() {
+    return this.predicted.filter((p) => ['tv', 'laptop', 'cell phone'].includes(p.class))
+  }
+
   constructor() {
     makeAutoObservable(this)
   }
