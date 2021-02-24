@@ -1,7 +1,7 @@
 import React from 'react'
 import { DetectedObject } from '@tensorflow-models/coco-ssd'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../infra/constants'
-
+import ReactHtmlParser from 'react-html-parser'
 
 export const AROverlay: React.FC<{
   modelUrl: string,
@@ -21,9 +21,8 @@ export const AROverlay: React.FC<{
   }
 
   return (
-    <div
-      style={style}
-      dangerouslySetInnerHTML={{ __html: getArHtml(modelUrl, objects) }}
-    />
+    <div style={style}>
+      {ReactHtmlParser(getArHtml(modelUrl, objects))}
+    </div>
   )
 }
