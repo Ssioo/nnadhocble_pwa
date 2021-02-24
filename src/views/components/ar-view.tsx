@@ -46,7 +46,7 @@ export const AROverlay: React.FC<{
   return (
     <div style={style} id='overlay'>
       <Scene style={style}>
-        <Entity gltf-model={{src: modelUrl}} />
+        <Entity primitive='a-box' position='-1 0.5 -3' rotation='0 45 0' color='#4CC3D9'/>
       </Scene>
     </div>
   )
