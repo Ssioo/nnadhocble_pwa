@@ -24,9 +24,8 @@ class HomeStore {
   async detectFromVideoFrame() {
     if (!this.cameraView.current || !this.model) return
     try {
-      this.predicted = await this.model?.detect(this.cameraView.current!!)
+      this.model?.detect(this.cameraView.current!!)?.then((ps) => this.predicted = ps)
       requestAnimationFrame((time) => {
-        console.log('Frame Updated', this.predicted)
         this.detectFromVideoFrame()
       })
     } catch (e) {
