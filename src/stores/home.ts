@@ -8,18 +8,18 @@
  */
 
 import { action, observable } from 'mobx'
-import * as CocoSsd from '@tensorflow-models/coco-ssd'
+import { ObjectDetection, DetectedObject } from '@tensorflow-models/coco-ssd'
 import { createRef, RefObject } from 'react'
 
 class HomeStore {
   @observable bleAvailable = false
   @observable localVideoTrack: MediaStreamTrack[] | null = null
   @observable localAudioTrack: MediaStreamTrack[] | null = null
-  @observable predicted: CocoSsd.DetectedObject[] = []
+  @observable predicted: DetectedObject[] = []
 
   cameraView: RefObject<HTMLVideoElement> = createRef()
   canvasView: RefObject<HTMLCanvasElement> = createRef()
-  model: CocoSsd.ObjectDetection | null = null
+  model: ObjectDetection | null = null
 
   @action
   async detectFromVideoFrame() {

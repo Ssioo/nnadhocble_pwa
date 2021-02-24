@@ -33,15 +33,9 @@ const HomeScreen = observer(() => {
       const mediaPromise = navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
-          width: {
-            exact: WINDOW_HEIGHT // 왜 뒤집어져야 제대로 맞는지 모르겠음. orientation에 대한 항목?
-          },
-          height: {
-            exact: WINDOW_WIDTH
-          },
-          facingMode: {
-            exact: 'environment'
-          },
+          width: { exact: WINDOW_HEIGHT }, // 왜 뒤집어져야 제대로 맞는지 모르겠음. orientation에 대한 항목?
+          height: { exact: WINDOW_WIDTH },
+          facingMode: { exact: 'environment' },
         }
       }).then((stream) => {
         const video = homeStore.cameraView.current
@@ -49,9 +43,7 @@ const HomeScreen = observer(() => {
         video.srcObject = stream
         homeStore.localVideoTrack = stream.getVideoTracks()
         return new Promise((resolve) => {
-          video.onloadedmetadata = () => {
-            resolve(true)
-          }
+          video.onloadedmetadata = () => { resolve(true) }
         })
       })
 
@@ -112,6 +104,7 @@ const HomeScreen = observer(() => {
           top: 0,
           left: 0
         }}
+        objects={homeStore.predicted}
         modelUrl='interpolationTest.glb'
       />
     </div>
