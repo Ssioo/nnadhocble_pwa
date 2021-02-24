@@ -7,20 +7,23 @@
  * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
  */
 
-import { action, observable } from 'mobx'
-import { ObjectDetection, DetectedObject } from '@tensorflow-models/coco-ssd'
+import { makeAutoObservable } from 'mobx'
+import { DetectedObject, ObjectDetection } from '@tensorflow-models/coco-ssd'
 import { createRef, RefObject } from 'react'
 
 class HomeStore {
-  @observable bleAvailable = false
-  @observable localVideoTrack: MediaStreamTrack[] | null = null
-  @observable localAudioTrack: MediaStreamTrack[] | null = null
-  @observable predicted: DetectedObject[] = []
+  bleAvailable = false
+  localVideoTrack: MediaStreamTrack[] | null = null
+  localAudioTrack: MediaStreamTrack[] | null = null
+  predicted: DetectedObject[] = []
 
   cameraView: RefObject<HTMLVideoElement> = createRef()
   model: ObjectDetection | null = null
 
-  @action
+  constructor() {
+    makeAutoObservable(this)
+  }
+
   async detectFromVideoFrame() {
     if (!this.cameraView.current || !this.model) return
     try {
