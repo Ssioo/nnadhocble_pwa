@@ -34,8 +34,9 @@ const HomeScreen = observer(() => {
       .then((cameras) => {
         homeStore.availableCameras = cameras
         if (cameras.length === 0) throw new Error('No Camera')
-        homeStore.currentCameraIdx = cameras.findIndex((c) => c.getCapabilities().facingMode?.includes('environment'))
-        return loadCameraStream(cameras[homeStore.currentCameraIdx])
+        const camera = cameras.filter((c) => c.getCapabilities().facingMode?.includes('environment'))[0]
+        homeStore.currentCameraIdx = cameras.lastIndexOf(camera)
+        return loadCameraStream(camera)
       })
       .then(attachStreamToVideoView)
 
