@@ -6,7 +6,7 @@
  *
  * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
  */
-import React from 'react'
+import React, { useEffect } from 'react'
 
 export interface Coord {
   x: number
@@ -71,15 +71,31 @@ export const ARCamera: React.FC<{
   far?: number
   fov?: number
   near?: number
-  lookControl?: boolean
-}> = ({ far, fov, near, lookControl}) => {
-  return React.createElement(
+  lookControl?: boolean,
+  onCameraPositionChanged: () => void,
+}> = ({ far , fov, near, lookControl = true, onCameraPositionChanged }) => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      localStorage.setItem('ar-camera', JSON.stringify(document.getElementById('ar-camera')))
+    }, 1000)
+  }, [])
+
+  const element = React.createElement(
     'a-camera',
     {
+      id: 'ar-camera',
       far,
       fov,
-      near
+      near,
+      'wasd-controls': true,
+      'look-controls': lookControl,
+      position: '0 1.6 0',
+      tick: () => {
+        //const pos = element.el.object3D.position
+        onCameraPositionChanged()
+      }
     },
     null
   )
+  return element
 }
