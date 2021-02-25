@@ -34,8 +34,8 @@ const HomeScreen = observer(() => {
       .then((cameras) => {
         homeStore.availableCameras = cameras
         if (cameras.length === 0) throw new Error('No Camera')
-        const camera = cameras.filter((c) => c.getCapabilities().facingMode?.includes('environment'))[0]
-        homeStore.currentCameraIdx = cameras.lastIndexOf(camera)
+        const camera = cameras[0]
+        homeStore.currentCameraIdx = 0
         return loadCameraStream(camera)
       })
       .then((stream) => {
@@ -80,7 +80,7 @@ const HomeScreen = observer(() => {
         width={WINDOW_WIDTH}
         height={WINDOW_HEIGHT}
         ref={homeStore.cameraView}
-        /*autoPlay*/
+        autoPlay
         muted
         playsInline
         controls={false}
@@ -139,6 +139,7 @@ const loadCameraStream = async (input: InputDeviceInfo): Promise<MediaStream> =>
         frameRate: {
           ideal: 30
         },
+        facingMode: input.getCapabilities().facingMode
       }
     })
   } catch (e) {
