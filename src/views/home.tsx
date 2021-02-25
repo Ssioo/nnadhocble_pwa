@@ -39,7 +39,7 @@ const HomeScreen = observer(() => {
         return loadCameraStream(camera)
       })
       .then((stream) => {
-        attachStreamToVideoView(stream)
+        attachStreamToVideoView(stream, true)
       })
 
     // 2. Load CocoSSd Model
@@ -146,7 +146,7 @@ const loadCameraStream = async (input: InputDeviceInfo): Promise<MediaStream> =>
   }
 }
 
-const attachStreamToVideoView = async (stream: MediaStream): Promise<boolean> => {
+const attachStreamToVideoView = async (stream: MediaStream, isFirst = false): Promise<boolean> => {
   const video = homeStore.cameraView.current
   if (!video) throw new Error('Video View is not ready')
   homeStore.stopCurrentTrack()
@@ -154,7 +154,7 @@ const attachStreamToVideoView = async (stream: MediaStream): Promise<boolean> =>
   video.load()
   homeStore.localVideoTrack = stream.getVideoTracks()
   return new Promise((resolve) => {
-    video.oncanplay = () => {
+    video.onloadedmetadata = () => {
       video.play()
       resolve(true)
     }
