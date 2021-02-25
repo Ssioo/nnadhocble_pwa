@@ -28,35 +28,30 @@ const HomeScreen = observer(() => {
           homeStore.bleAvailable = a
         })
     }
-    if (navigator.mediaDevices && 'getUserMedia' in navigator.mediaDevices) {
-      // 1. Load MediaDevice
-      const mediaPromise = navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          width: { exact: WINDOW_HEIGHT }, // 왜 뒤집어져야 제대로 맞는지 모르겠음. orientation에 대한 항목?
-          height: { exact: WINDOW_WIDTH },
-          facingMode: { exact: 'environment' },
-        }
-      }).then((stream) => {
-        const video = homeStore.cameraView.current
-        if (!video) return
-        video.srcObject = stream
-        homeStore.localVideoTrack = stream.getVideoTracks()
-        return new Promise((resolve) => {
-          video.onloadedmetadata = () => { resolve(true) }
-        })
+
+    // 1. Load User Media
+    const mediaPromise = loadCameras()
+      .then((cameras) => {
+        homeStore.availableCameras = cameras
+        if (cameras.length === 0) throw new Error('No Camera')
+        homeStore.currentCameraIdx = 0
+        return loadCameraStream(cameras[0])
+      })
+      .then((stream) => {
+        return attachStreamToVideoView(stream)
       })
 
-      // 2. Load CocoSSd Model
-      const modelPromise = CocoSsd.load({ base: 'lite_mobilenet_v2' })
+    // 2. Load CocoSSd Model
+    const modelPromise = CocoSsd.load({ base: 'lite_mobilenet_v2' })
 
-      // Wait for both 1 & 2
-      Promise.all([modelPromise, mediaPromise])
-        .then((values) => {
-          homeStore.model = values[0]
-          homeStore.detectFromVideoFrame()
-        })
-    }
+    // Wait for both 1 & 2
+    Promise.all([modelPromise, mediaPromise])
+      .then((values) => {
+        homeStore.model = values[0]
+        homeStore.detectFromVideoFrame()
+      }).catch((e) => {
+        console.log(e)
+    })
 
     return () => {
       scan?.stop()
@@ -107,8 +102,86 @@ const HomeScreen = observer(() => {
         objects={homeStore.predictedDisplays}
         modelUrl='interpolationTest.glb'
       />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 10,
+          left: 0,
+          right: 0,
+          borderRadius: 20,
+          paddingTop: 6,
+          paddingBottom: 6,
+          color: 'white',
+          borderWidth: 1,
+          borderColor: 'white',
+          paddingLeft: 12,
+          paddingRight: 12,
+          textAlign: 'center',
+        }}
+        onClick={async () => {
+          if (homeStore.availableCameras.length === 0) return
+          const nextCameraIdx = (homeStore.currentCameraIdx + 1) % homeStore.availableCameras.length
+          try {
+            const stream = await loadCameraStream(homeStore.availableCameras[nextCameraIdx])
+            await attachStreamToVideoView(stream)
+          } catch (e) {
+          }
+        }}
+      >
+        Change Camera
+      </div>
     </div>
   )
 })
+
+const loadCameras = async (): Promise<InputDeviceInfo[]> => {
+  if (!navigator.mediaDevices
+    || !('enumerateDevices' in navigator.mediaDevices)
+    || !('getUserMedia' in navigator.mediaDevices)
+  )
+    return []
+  try {
+    const availableDevices = await navigator.mediaDevices.enumerateDevices()
+    return availableDevices
+      .filter((d) => d.kind === 'videoinput' && 'getCapabilities' in d)
+      .map((d) => d as InputDeviceInfo)
+  } catch (e) {
+    console.log(e)
+    return []
+  }
+}
+const loadCameraStream = async (input: InputDeviceInfo): Promise<MediaStream> => {
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: {
+        aspectRatio: {
+          exact: WINDOW_WIDTH / WINDOW_HEIGHT
+        },
+        deviceId: input.deviceId,
+        frameRate: {
+          exact: 30
+        },
+        facingMode: {
+          exact: 'environment'
+        }
+      }
+    })
+  } catch (e) {
+    throw e
+  }
+}
+
+const attachStreamToVideoView = async (stream: MediaStream): Promise<boolean> => {
+  const video = homeStore.cameraView.current
+  if (!video) return false
+  video.srcObject = stream
+  homeStore.localVideoTrack = stream.getVideoTracks()
+  return new Promise((resolve) => {
+    video.onloadedmetadata = () => {
+      resolve(true)
+    }
+  })
+}
 
 export default HomeScreen

@@ -13,6 +13,8 @@ import { createRef, RefObject } from 'react'
 
 class HomeStore {
   bleAvailable = false
+  availableCameras: InputDeviceInfo[] = []
+  currentCameraIdx = 0
   localVideoTrack: MediaStreamTrack[] | null = null
   localAudioTrack: MediaStreamTrack[] | null = null
   predicted: DetectedObject[] = []
