@@ -156,7 +156,7 @@ const loadCameraStream = async (input: InputDeviceInfo): Promise<MediaStream> =>
       audio: false,
       video: {
         aspectRatio: {
-          exact: WINDOW_WIDTH / WINDOW_HEIGHT
+          exact: WINDOW_HEIGHT / WINDOW_WIDTH
         },
         deviceId: input.deviceId,
         frameRate: {
