@@ -25,8 +25,8 @@ export const AROverlay: React.FC<{
           key={idx.toString()}
           src={modelUrl}
           position={{
-            x: (o.bbox[0] / WINDOW_WIDTH - 0.5) * 20,
-            y: (o.bbox[1] / WINDOW_HEIGHT - 0.5) * 20,
+            x: 0, //(o.bbox[0] / WINDOW_WIDTH - 0.5) * 20,
+            y: 0, //(o.bbox[1] / WINDOW_HEIGHT - 0.5) * 20,
             z: -50 * WINDOW_WIDTH / o.bbox[2],
           }}
           scale={{ x: 2, y: 2, z: 2 }}

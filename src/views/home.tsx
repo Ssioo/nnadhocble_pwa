@@ -7,7 +7,7 @@
  * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { CSSProperties, useEffect, useState } from 'react'
 import { deviceStore } from '../stores/device'
 import '@tensorflow/tfjs-backend-cpu'
 import '@tensorflow/tfjs-backend-webgl'
@@ -37,9 +37,7 @@ const HomeScreen = observer(() => {
         homeStore.currentCameraIdx = 0
         return loadCameraStream(cameras[0])
       })
-      .then((stream) => {
-        return attachStreamToVideoView(stream)
-      })
+      .then(attachStreamToVideoView)
 
     // 2. Load CocoSSd Model
     const modelPromise = CocoSsd.load({ base: 'lite_mobilenet_v2' })
@@ -75,13 +73,7 @@ const HomeScreen = observer(() => {
   return (
     <div style={{ width: WINDOW_WIDTH, height: WINDOW_HEIGHT }}>
       <video
-        style={{
-          width: WINDOW_WIDTH,
-          height: WINDOW_HEIGHT,
-          position: 'fixed',
-          top: 0,
-          left: 0
-        }}
+        style={styles.window}
         width={WINDOW_WIDTH}
         height={WINDOW_HEIGHT}
         ref={homeStore.cameraView}
@@ -91,36 +83,12 @@ const HomeScreen = observer(() => {
         controls={false}
       />
       <AROverlay
-        style={{
-          width: WINDOW_WIDTH,
-          height: WINDOW_HEIGHT,
-          display: 'block',
-          position: 'fixed',
-          top: 0,
-          left: 0
-        }}
+        style={styles.window}
         objects={homeStore.predictedDisplays}
         modelUrl='interpolationTest.glb'
       />
       <button
-        style={{
-          position: 'absolute',
-          bottom: 10,
-          left: 0,
-          right: 0,
-          backgroundColor: 'transparent',
-          borderRadius: 20,
-          paddingTop: 6,
-          paddingBottom: 6,
-          color: 'white',
-          borderWidth: 1,
-          borderColor: 'white',
-          paddingLeft: 12,
-          paddingRight: 12,
-          textAlign: 'center',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-        }}
+        style={styles.button}
         onClick={async () => {
           if (homeStore.availableCameras.length === 0) return
           const nextCameraIdx = (homeStore.currentCameraIdx + 1) % homeStore.availableCameras.length
@@ -178,11 +146,8 @@ const loadCameraStream = async (input: InputDeviceInfo): Promise<MediaStream> =>
 const attachStreamToVideoView = async (stream: MediaStream): Promise<boolean> => {
   const video = homeStore.cameraView.current
   if (!video) throw new Error('Video View is not ready')
-  const newSource = document.createElement('source')
-  newSource.setAttribute('src', URL.createObjectURL(stream))
-  video.pause()
-  video.innerHTML = ''
-  video.appendChild(newSource)
+  homeStore.stopCurrentTrack()
+  video.srcObject = stream
   video.load()
   homeStore.localVideoTrack = stream.getVideoTracks()
   return new Promise((resolve) => {
@@ -191,6 +156,34 @@ const attachStreamToVideoView = async (stream: MediaStream): Promise<boolean> =>
       resolve(true)
     }
   })
+}
+
+const styles = {
+  window: {
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+    position: 'fixed',
+    top: 0,
+    left: 0,
+  } as CSSProperties,
+  button: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+    backgroundColor: 'transparent',
+    borderRadius: 20,
+    paddingTop: 6,
+    paddingBottom: 6,
+    color: 'white',
+    borderWidth: 1,
+    borderColor: 'white',
+    paddingLeft: 12,
+    paddingRight: 12,
+    textAlign: 'center',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  } as CSSProperties
 }
 
 export default HomeScreen

@@ -42,6 +42,11 @@ class HomeStore {
       console.log(e)
     }
   }
+
+  stopCurrentTrack() {
+    this.localVideoTrack?.forEach((v) => v.stop())
+    this.localAudioTrack?.forEach((a) => a.stop())
+  }
 }
 
 export const homeStore = new HomeStore()
