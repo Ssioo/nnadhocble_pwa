@@ -102,12 +102,13 @@ const HomeScreen = observer(() => {
         objects={homeStore.predictedDisplays}
         modelUrl='interpolationTest.glb'
       />
-      <div
+      <button
         style={{
           position: 'absolute',
           bottom: 10,
           left: 0,
           right: 0,
+          backgroundColor: 'transparent',
           borderRadius: 20,
           paddingTop: 6,
           paddingBottom: 6,
@@ -117,19 +118,24 @@ const HomeScreen = observer(() => {
           paddingLeft: 12,
           paddingRight: 12,
           textAlign: 'center',
+          marginLeft: 'auto',
+          marginRight: 'auto',
         }}
         onClick={async () => {
           if (homeStore.availableCameras.length === 0) return
           const nextCameraIdx = (homeStore.currentCameraIdx + 1) % homeStore.availableCameras.length
           try {
+            console.log(homeStore.availableCameras[nextCameraIdx])
             const stream = await loadCameraStream(homeStore.availableCameras[nextCameraIdx])
+            homeStore.currentCameraIdx = nextCameraIdx
             await attachStreamToVideoView(stream)
           } catch (e) {
+            console.log(e)
           }
         }}
       >
         Change Camera
-      </div>
+      </button>
     </div>
   )
 })
@@ -156,15 +162,12 @@ const loadCameraStream = async (input: InputDeviceInfo): Promise<MediaStream> =>
       audio: false,
       video: {
         aspectRatio: {
-          exact: WINDOW_HEIGHT / WINDOW_WIDTH
+          ideal: WINDOW_HEIGHT / WINDOW_WIDTH
         },
         deviceId: input.deviceId,
         frameRate: {
-          exact: 30
+          ideal: 30
         },
-        facingMode: {
-          exact: 'environment'
-        }
       }
     })
   } catch (e) {
@@ -174,12 +177,16 @@ const loadCameraStream = async (input: InputDeviceInfo): Promise<MediaStream> =>
 
 const attachStreamToVideoView = async (stream: MediaStream): Promise<boolean> => {
   const video = homeStore.cameraView.current
-  if (!video) return false
+  if (!video) throw new Error('Video View is not ready')
+  const newSource = document.createElement('source')
+  newSource.setAttribute('src', URL.createObjectURL(stream))
   video.pause()
-  video.srcObject = stream
+  video.innerHTML = ''
+  video.appendChild(newSource)
+  video.load()
   homeStore.localVideoTrack = stream.getVideoTracks()
   return new Promise((resolve) => {
-    video.onloadedmetadata = () => {
+    video.oncanplay = () => {
       video.play()
       resolve(true)
     }
