@@ -66,3 +66,20 @@ export const ARMarker: React.FC<{
     children
   )
 }
+
+export const ARCamera: React.FC<{
+  far?: number
+  fov?: number
+  near?: number
+  lookControl?: boolean
+}> = ({ far, fov, near, lookControl}) => {
+  return React.createElement(
+    'a-camera',
+    {
+      far,
+      fov,
+      near
+    },
+    null
+  )
+}
