@@ -38,7 +38,9 @@ const HomeScreen = observer(() => {
         homeStore.currentCameraIdx = cameras.lastIndexOf(camera)
         return loadCameraStream(camera)
       })
-      .then(attachStreamToVideoView)
+      .then((stream) => {
+        attachStreamToVideoView(stream)
+      })
 
     // 2. Load CocoSSd Model
     const modelPromise = CocoSsd.load({ base: 'lite_mobilenet_v2' })

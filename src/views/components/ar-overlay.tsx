@@ -7,7 +7,7 @@
  * @link http://github.com/Ssioo/nnadhoc_ble for the original source repository
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { DetectedObject } from '@tensorflow-models/coco-ssd'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../infra/constants'
 import { observer } from 'mobx-react-lite'
@@ -17,10 +17,22 @@ export const AROverlay: React.FC<{
   modelUrl: string,
   objects: DetectedObject[]
   style?: React.CSSProperties,
-}> = observer(({ modelUrl, style, objects }) => (
+}> = observer(({ modelUrl, style, objects }) => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      useEffect(() => {
+        localStorage.setItem('ar-camera', JSON.stringify(document.querySelector('a-scene')))
+      }, [])
+    }, 1000)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
+
+  return (
   <div style={style}>
     <ARScene>
-      <ARCamera />
+      {/*<ARCamera onCameraPositionChanged={() => {}}/>*/}
       {objects.map((o, idx) =>
         <ARGLFTEntity
           key={idx.toString()}
@@ -35,4 +47,5 @@ export const AROverlay: React.FC<{
       )}
     </ARScene>
   </div>
-))
+)
+})

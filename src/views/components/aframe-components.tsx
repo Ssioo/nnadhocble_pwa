@@ -74,11 +74,7 @@ export const ARCamera: React.FC<{
   lookControl?: boolean,
   onCameraPositionChanged: () => void,
 }> = ({ far , fov, near, lookControl = true, onCameraPositionChanged }) => {
-  useEffect(() => {
-    const interval = setInterval(() => {
-      localStorage.setItem('ar-camera', JSON.stringify(document.getElementById('ar-camera')))
-    }, 1000)
-  }, [])
+
 
   const element = React.createElement(
     'a-camera',
