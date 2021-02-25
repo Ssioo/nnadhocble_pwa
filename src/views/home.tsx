@@ -85,7 +85,7 @@ const HomeScreen = observer(() => {
         width={WINDOW_WIDTH}
         height={WINDOW_HEIGHT}
         ref={homeStore.cameraView}
-        autoPlay
+        /*autoPlay*/
         muted
         playsInline
         controls={false}
@@ -175,10 +175,12 @@ const loadCameraStream = async (input: InputDeviceInfo): Promise<MediaStream> =>
 const attachStreamToVideoView = async (stream: MediaStream): Promise<boolean> => {
   const video = homeStore.cameraView.current
   if (!video) return false
+  video.pause()
   video.srcObject = stream
   homeStore.localVideoTrack = stream.getVideoTracks()
   return new Promise((resolve) => {
     video.onloadedmetadata = () => {
+      video.play()
       resolve(true)
     }
   })
